@@ -7,3 +7,6 @@ http://davegiles.blogspot.com/2016/12/monte-carlo-simulation-basics-iii.html
 2. Spatial Analysis & Maps in R
 https://jasdumas.github.io/maps-r/
 http://spatial.ly/r/
+
+3. Using R as GIS
+https://pakillo.github.io/R-GIS-tutorial/
