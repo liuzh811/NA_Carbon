@@ -251,3 +251,67 @@ plot(ensm.nee1.mean1,
 				
 dev.off()
 		
+# plot Ecosystem Carbon Use Efficiency 
+cue1 = ensm.nee1.mean1/gpp.annual.mean2
+cue2 = ensm.nee1.mean1/sif.mean2
+cue2[cue2 > 50 | cue2 < -50] = NA
+
+png("F:/zhihua/dataset/results/CUE.20170505.png",height = 3000, width = 3000, res = 300, units = "px")
+
+# plot start from here
+par(mfrow=c(2,1),mar=c(0,0,0,0)+.1)
+
+####### CUE1 plot 
+plot(cue1, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(newmap, add = TRUE, lty = 2)
+tx = expression("Ecosystem Carbon Use Efficiency \n(Inversion_NEE/MOD17_GPP)")
+text(x = 0, y = -80, tx, cex = 2)
+# text(x = 0, y = -85, "Mean Annual GPP by MODIS (g C/m-2*yr, 2000-2014)", cex = 2)
+
+#add legend
+plot(cue1, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.13,0.16, 0.35,0.55))
+				par(mar = par("mar"))
+
+
+####### CUE2 plot 
+plot(cue2, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(newmap, add = TRUE, lty = 2)
+tx = expression("Ecosystem Carbon Use Efficiency \n(Inversion_NEE/GOME2_SIF)")
+text(x = 0, y = -80, tx, cex = 2)
+# text(x = 0, y = -85, "Mean Annual GPP by MODIS (g C/m-2*yr, 2000-2014)", cex = 2)
+
+#add legend
+plot(cue2, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.13,0.16, 0.35,0.55))
+				par(mar = par("mar"))
+		
+dev.off()
