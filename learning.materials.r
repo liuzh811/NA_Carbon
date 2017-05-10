@@ -13,3 +13,4 @@ https://pakillo.github.io/R-GIS-tutorial/
 
 4. Geospatial Analysis Class
 http://geog.uoregon.edu/GeogR/index.html
+http://geog.uoregon.edu/bartlein/courses/geog490/index.html
