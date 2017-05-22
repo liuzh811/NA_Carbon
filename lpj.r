@@ -1,6 +1,100 @@
 ## 5/22/2017
 ## using LPJ model to calculate the relationship between GPP/ER with precipitation and temperature
 
+				
+##################################################################################
+## doing the same analysis for OBS, at 0.5 degree resolution at the NEON domain
+#read into cell-area maps
+library(ncdf4)
+nc <- nc_open("C:/zhihua/dataset/ecoregion/regions.nc")
+print(nc)
+v2 <- nc$var[[1]]
+data2 <- ncvar_get( nc, v2 ) #data2 is an array
+
+grid.area = raster(t(data2),xmn=-180, xmx=180, ymn=-90, ymx=90, 
+        crs = "+proj=longlat +datum=WGS84")
+
+grid.area.gpp = resample(grid.area.nee, mask.gpp, method = "ngb"); grid.area.gpp = grid.area.gpp/400
+###################################################################################
+
+# read into spatial layers
+usa.state = readOGR(dsn="C:\\zhihua\\dataset\\ecoregion", layer = "usa.state")
+usa.state = usa.state[-which(usa.state$NAME_1 == "Hawaii" | usa.state$NAME_1 == "Alaska"),]
+						   
+na.ext <- extent(-180,-48,15,85)
+
+#using NEON domains
+neon.sp = readOGR(dsn="C:/zhihua/dataset/ecoregion", layer="NEON_Domains")
+
+# read into carbon tracker NEE
+#nee.annual in the unit of g C m-1 yr-1
+nee.annual = stack("C:/zhihua/dataset/ct/ct2015flux/processed/c.flux.annual.grd")
+nee.annual = crop(nee.annual, usa.state)
+nee.annual = -1*nee.annual
+
+mask = rasterize(usa.state, nee.annual)
+
+mask = mask > 0
+mask[mask == 0] = NA
+# nee.annual = nee.annual*grid.area
+nee.annual = nee.annual*mask
+
+# read into modis 17 gpp
+gpp.annual = stack("C:/zhihua/dataset/mod17a2/processed/c.gpp.annual.grd")
+gpp.annual2 = list()
+
+for(i in 1:15){
+t1 = aggregate(gpp.annual[[i]], fact=10, fun=mean, expand=TRUE, na.rm=TRUE)
+gpp.annual2[[i]] <- t1
+}
+gpp.annual2 = stack(gpp.annual2)
+
+gpp.annual = crop(gpp.annual2, usa.state)
+
+mask.gpp = rasterize(usa.state, gpp.annual)
+mask.gpp = mask.gpp > 0
+mask.gpp[mask.gpp == 0] = NA
+
+# area unit: units: m2
+grid.area.nee = mask*grid.area 
+grid.area.gpp = resample(grid.area.nee, mask.gpp, method = "ngb"); grid.area.gpp = grid.area.gpp/4
+
+# gpp.annual = gpp.annual*grid.area.gpp
+gpp.annual = gpp.annual*mask.gpp
+
+# read into climate variables
+# for annual temperature and precipitations
+temp = stack(paste0("C:/zhihua/dataset/cru_ts3.23/temp.", 1999, ".grd"))[[1]]
+temp = crop(temp, usa.state)
+mask.temp = rasterize(usa.state, temp)
+mask.temp = mask.temp > 0
+mask.temp[mask.temp == 0] = NA
+
+temp = list()
+prep = list()
+
+for (yr in 2000:2014){
+temp1 = stack(paste0("C:/zhihua/dataset/cru_ts3.23/temp.", yr, ".grd"))
+temp1 = crop(temp1, na.ext)
+temp1 = temp1*mask.temp
+temp1 = calc(temp1, mean, na.rm = TRUE)
+
+prep1 = stack(paste0("C:/zhihua/dataset/cru_ts3.23/prep", yr, ".grd"))
+prep1 = crop(prep1, na.ext)
+prep1 = prep1*mask.temp
+prep1 = calc(prep1, sum, na.rm = TRUE)
+
+temp[[yr - 1999]] <- temp1
+prep[[yr - 1999]] <- prep1
+
+}
+
+temp = stack(temp)
+prep = stack(prep)
+
+#### plot mean precipitaion in the USA
+prep.mn1 = calc(prep, mean)
+prep.mn1[prep.mn1 == 0] = NA
 
 
 ##################################################
