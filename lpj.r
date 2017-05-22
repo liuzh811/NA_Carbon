@@ -115,6 +115,12 @@ er.df.lpj.mn = zonal(calc(er.annual, mean),noen.grd.gpp, fun='mean', digits=0, n
 rh.df.lpj.mn = zonal(calc(rh.annual, mean),noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,2] 
 ra.df.lpj.mn = zonal(calc(ra.annual, mean),noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,2] 
 
+temp.df = zonal(temp, noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,c(2:16)]
+prep.df = zonal(prep, noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,c(2:16)]
+temp.df.mn = zonal(calc(temp, mean),noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,2]
+prep.df.mn = zonal(calc(prep, mean),noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,2]
+
+
 #find the dominant land cover within each neon domain
 lc_us2_rc3 = raster("C:/zhihua/dataset/ecoregion/LCTypeUS_rc3_0.5_2.tif")
 newclas_names <- c("EvergreenForest", "BroadForest","Shrubland","Grass", "Crop")
@@ -131,7 +137,7 @@ lc_us2_rc3.df$modal = factor(lc_us2_rc3.df$modal)
 levels(lc_us2_rc3.df$modal) <- c("ENF","DBF","Nonforest","Nonforest","Nonforest")
 
 ## temproal correlationship
-lculate Z-score
+## clculate Z-score
 Zscore = function(x){(x-mean(x))/sd(x)} 
 nee.df.lpj.z = t(apply(nee.df.lpj, 1, Zscore))
 gpp.df.lpj.z = t(apply(gpp.df.lpj, 1, Zscore))
@@ -212,7 +218,7 @@ pred1 = predict(lm1.ra, newdata = dat.new1)
 pred2 = predict(lm1.ra, newdata = dat.new2)
 reg.abs.mod.pred1.ra <- data.frame(airtemp = seq(1,23, length.out = 25), predt = pred1, prep = seq(100,1300, length.out = 25), predp = pred2)
 
-png("C:/zhihua/dataset/results/er.prep01032017.lpj.png",height = 2500, width = 3000, res = 300, units = "px")
+# png("C:/zhihua/dataset/results/er.prep01032017.lpj.png",height = 2500, width = 3000, res = 300, units = "px")
 
 par(mar=c(5,5,1,1))
 #plot the relationship
@@ -224,12 +230,12 @@ points(dat.df.annual.mean$prep,dat.df.annual.mean$gpp, cex = 1, col = "green")
 lines(smooth.spline(reg.abs.mod.pred1.er[,3], reg.abs.mod.pred1.er[,4]), lty = 1, lwd = 6, col = "red")
 points(dat.df.annual.mean$prep,dat.df.annual.mean$er, cex = 1, col = "red")
 
-# lines(smooth.spline(reg.abs.mod.pred1.ra[,3], reg.abs.mod.pred1.ra[,4]), lty = 1, lwd = 6, col = "blue")
-# lines(smooth.spline(reg.abs.mod.pred1.rh[,3], reg.abs.mod.pred1.rh[,4]), lty = 2, lwd = 6, col = "blue")
+lines(smooth.spline(reg.abs.mod.pred1.ra[,3], reg.abs.mod.pred1.ra[,4]), lty = 1, lwd = 6, col = "blue")
+lines(smooth.spline(reg.abs.mod.pred1.rh[,3], reg.abs.mod.pred1.rh[,4]), lty = 2, lwd = 6, col = "blue")
 
 
-# lines(smooth.spline(reg.abs.mod.pred1.nee[,3], reg.abs.mod.pred1.nee[,4]), lty = 1, lwd = 6, col = "red")
-# lines(smooth.spline(reg.abs.mod.pred1.nee[,3],reg.abs.mod.pred1.gpp[,4]/reg.abs.mod.pred1.er[,4]), lty = 1, lwd = 6, col = "red")
+lines(smooth.spline(reg.abs.mod.pred1.nee[,3], reg.abs.mod.pred1.nee[,4]), lty = 1, lwd = 6, col = "red")
+lines(smooth.spline(reg.abs.mod.pred1.nee[,3],reg.abs.mod.pred1.gpp[,4]/reg.abs.mod.pred1.er[,4]), lty = 1, lwd = 6, col = "red")
 
 delt.er = diff(reg.abs.mod.pred1.er$predp)
 delt.gpp = diff(reg.abs.mod.pred1.gpp$predp)
@@ -335,7 +341,7 @@ points(x = mean(x11), y = 3, type = "p", pch = 17, cex = 2, col = "red")
 	  
 		  mar=c(3,0,0,0))
 
-dev.off()
+# dev.off()
 		  
 ## plot gpp/er sensitive to temperature 
 delt.er2 = diff(reg.abs.mod.pred1.er$predt)
