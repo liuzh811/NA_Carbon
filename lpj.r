@@ -1,12 +1,50 @@
 ## 5/22/2017
 ## using LPJ model to calculate the relationship between GPP/ER with precipitation and temperature
+## at 0.5 degree resolution
+## using the median/mean NEE estimate from four co2 inversion methods
 
-				
-##################################################################################
-## doing the same analysis for OBS, at 0.5 degree resolution at the NEON domain
-#read into cell-area maps
+library(rgdal)
+library(raster)
+library(rasterVis)
+require(ncdf4)
+
+usa.state = readOGR(dsn="F:\\zhihua\\dataset\\ecoregion", layer = "usa.state")
+usa.state = usa.state[-which(usa.state$NAME_1 == "Hawaii" | usa.state$NAME_1 == "Alaska"),]
+
+######### section 1: read into LPJ simulations #########################################
+na.ext <- extent(-180,-48,15,85)
+
+##look at the lpj models
+## nee.annual in the unit of Kg C m-1 yr-1
+nee.annual.lpj = stack("F:/zhihua/dataset/lpj/processed/LPJ_nbp.2000.2014.annual.grd")
+nee.annual.lpj = crop(nee.annual.lpj, usa.state)
+nee.annual.lpj = nee.annual.lpj*1000 # change to g C m-1 yr-1 to compare with Carbon Tracker
+
+# read into ER
+ra.annual = stack("F:/zhihua/dataset/lpj/processed/LPJ_ra..2000.2014.annual.grd")
+ra.annual = crop(ra.annual, na.state)
+ra.annual = ra.annual*1000 # change to g C m-2 yr-1 
+
+rh.annual = stack("F:/zhihua/dataset/lpj/processed/LPJ_rh..2000.2014.annual.grd")
+rh.annual = crop(rh.annual, na.state)
+rh.annual = rh.annual*1000 # change to g C m-2 yr-1 
+
+
+# read into GPP
+gpp.annual.lpj = stack("F:/zhihua/dataset/lpj/processed/LPJ_gpp.2000.2014.annual.grd")
+gpp.annual.lpj = crop(gpp.annual.lpj, na.state)
+gpp.annual.lpj = gpp.annual.lpj*1000 # change to g C m-2 yr-1 
+
+# gpp.annual.lpj = gpp.annual.lpj*grid.area.gpp
+# er.annual = er.annual*grid.area.gpp
+# nee.annual.lpj = nee.annual.lpj*grid.area.gpp
+# rh.annual = rh.annual*grid.area.gpp
+# ra.annual = ra.annual*grid.area.gpp
+
+######### section 2: read into various grid and polygon #########################################
+## read into cell-area maps
 library(ncdf4)
-nc <- nc_open("C:/zhihua/dataset/ecoregion/regions.nc")
+nc <- nc_open("F:/zhihua/dataset/ecoregion/regions.nc")
 print(nc)
 v2 <- nc$var[[1]]
 data2 <- ncvar_get( nc, v2 ) #data2 is an array
@@ -15,73 +53,22 @@ grid.area = raster(t(data2),xmn=-180, xmx=180, ymn=-90, ymx=90,
         crs = "+proj=longlat +datum=WGS84")
 
 grid.area.gpp = resample(grid.area.nee, mask.gpp, method = "ngb"); grid.area.gpp = grid.area.gpp/400
-###################################################################################
 
-# read into spatial layers
-usa.state = readOGR(dsn="C:\\zhihua\\dataset\\ecoregion", layer = "usa.state")
-usa.state = usa.state[-which(usa.state$NAME_1 == "Hawaii" | usa.state$NAME_1 == "Alaska"),]
-						   
-na.ext <- extent(-180,-48,15,85)
+## read into NEON domains
+neon.sp = readOGR(dsn="F:/zhihua/dataset/ecoregion", layer="NEON_Domains")
 
-#using NEON domains
-neon.sp = readOGR(dsn="C:/zhihua/dataset/ecoregion", layer="NEON_Domains")
-
-# read into carbon tracker NEE
-#nee.annual in the unit of g C m-1 yr-1
-nee.annual = stack("C:/zhihua/dataset/ct/ct2015flux/processed/c.flux.annual.grd")
-nee.annual = crop(nee.annual, usa.state)
-nee.annual = -1*nee.annual
-
-mask = rasterize(usa.state, nee.annual)
-
-mask = mask > 0
-mask[mask == 0] = NA
-# nee.annual = nee.annual*grid.area
-nee.annual = nee.annual*mask
-
-# read into modis 17 gpp
-gpp.annual = stack("C:/zhihua/dataset/mod17a2/processed/c.gpp.annual.grd")
-gpp.annual2 = list()
-
-for(i in 1:15){
-t1 = aggregate(gpp.annual[[i]], fact=10, fun=mean, expand=TRUE, na.rm=TRUE)
-gpp.annual2[[i]] <- t1
-}
-gpp.annual2 = stack(gpp.annual2)
-
-gpp.annual = crop(gpp.annual2, usa.state)
-
-mask.gpp = rasterize(usa.state, gpp.annual)
-mask.gpp = mask.gpp > 0
-mask.gpp[mask.gpp == 0] = NA
-
-# area unit: units: m2
-grid.area.nee = mask*grid.area 
-grid.area.gpp = resample(grid.area.nee, mask.gpp, method = "ngb"); grid.area.gpp = grid.area.gpp/4
-
-# gpp.annual = gpp.annual*grid.area.gpp
-gpp.annual = gpp.annual*mask.gpp
-
-# read into climate variables
+# read into climate variables and aggregate into 1 degree resolution
 # for annual temperature and precipitations
-temp = stack(paste0("C:/zhihua/dataset/cru_ts3.23/temp.", 1999, ".grd"))[[1]]
-temp = crop(temp, usa.state)
-mask.temp = rasterize(usa.state, temp)
-mask.temp = mask.temp > 0
-mask.temp[mask.temp == 0] = NA
-
 temp = list()
 prep = list()
 
 for (yr in 2000:2014){
-temp1 = stack(paste0("C:/zhihua/dataset/cru_ts3.23/temp.", yr, ".grd"))
+temp1 = stack(paste0("F:/zhihua/dataset/cru_ts3.23/temp.", yr, ".grd"))
 temp1 = crop(temp1, na.ext)
-temp1 = temp1*mask.temp
 temp1 = calc(temp1, mean, na.rm = TRUE)
 
-prep1 = stack(paste0("C:/zhihua/dataset/cru_ts3.23/prep", yr, ".grd"))
+prep1 = stack(paste0("F:/zhihua/dataset/cru_ts3.23/prep", yr, ".grd"))
 prep1 = crop(prep1, na.ext)
-prep1 = prep1*mask.temp
 prep1 = calc(prep1, sum, na.rm = TRUE)
 
 temp[[yr - 1999]] <- temp1
@@ -92,43 +79,28 @@ prep[[yr - 1999]] <- prep1
 temp = stack(temp)
 prep = stack(prep)
 
-#### plot mean precipitaion in the USA
-prep.mn1 = calc(prep, mean)
-prep.mn1[prep.mn1 == 0] = NA
+# create mask to crop data
+temp1 = crop(temp[[1]], usa.state)
+mask = rasterize(usa.state, temp1)
 
+mask = mask > 0
+mask[mask == 0] = NA
 
-##################################################
-##look at the lpj models
-## nee.annual in the unit of Kg C m-1 yr-1
-nee.annual.lpj = stack("D:/zhihua/dataset/lpj/processed/LPJ_nbp.2000.2014.annual.grd")
-nee.annual.lpj = crop(nee.annual.lpj, usa.state)
-nee.annual.lpj = nee.annual.lpj*1000 # change to g C m-1 yr-1 to compare with Carbon Tracker
-nee.annual.lpj = nee.annual.lpj*mask.gpp
+# crop dataset into USA
+gpp.annual.lpj = gpp.annual.lpj*mask
+nee.annual.lpj = nee.annual.lpj*mask
 
-# read into ER
-ra.annual = stack("D:/zhihua/dataset/lpj/processed/LPJ_ra..2000.2014.annual.grd")
-ra.annual = crop(ra.annual, na.state)
-ra.annual = ra.annual*1000 # change to g C m-2 yr-1 
-ra.annual = ra.annual*mask.gpp
-
-rh.annual = stack("D:/zhihua/dataset/lpj/processed/LPJ_rh..2000.2014.annual.grd")
-rh.annual = crop(rh.annual, na.state)
-rh.annual = rh.annual*1000 # change to g C m-2 yr-1 
-rh.annual = rh.annual*mask.gpp
+ra.annual = ra.annual*mask
+rh.annual = rh.annual*mask
 er.annual = rh.annual+ra.annual
 
-# read into GPP
-gpp.annual.lpj = stack("D:/zhihua/dataset/lpj/processed/LPJ_gpp.2000.2014.annual.grd")
-gpp.annual.lpj = crop(gpp.annual.lpj, na.state)
-gpp.annual.lpj = gpp.annual.lpj*1000 # change to g C m-2 yr-1 
-gpp.annual.lpj = gpp.annual.lpj*mask.gpp
+temp = temp*mask
+prep = prep*mask
 
-# gpp.annual.lpj = gpp.annual.lpj*grid.area.gpp
-# er.annual = er.annual*grid.area.gpp
-# nee.annual.lpj = nee.annual.lpj*grid.area.gpp
-# rh.annual = rh.annual*grid.area.gpp
-# ra.annual = ra.annual*grid.area.gpp
+# change NEON into grid
+noen.grd.gpp = rasterize(neon.sp,mask, field = "DomainID")				
 
+###########  section 3, calculating the correlationship between GPP/ER and prep/temp
 
 nee.df.lpj = zonal(nee.annual.lpj, noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,c(2:16)]
 gpp.df.lpj = zonal(gpp.annual.lpj, noen.grd.gpp, fun='mean', digits=0, na.rm=TRUE)[,c(2:16)]
