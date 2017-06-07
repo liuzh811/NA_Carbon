@@ -24,12 +24,13 @@ R.grd2 = rasterize(na.state, R.grd2, field = 1)
 
 usa.state = na.state[which(na.state$ISO == "USA" & na.state$NAME_1 != "Alaska"), ]
 
+# correlation between GPP:NEE
 R1.stack <- list()
 P1.stack <- list()
-
+# correlation between GPP:Ra
 R2.stack <- list()
 P2.stack <- list()
-
+# correlation between GPP:Rh
 R3.stack <- list()
 P3.stack <- list()
 
@@ -220,8 +221,8 @@ ER.stack2[[1]] <- Rh.stack2[[1]] + Ra.stack2[[1]]
 pts.sp = Ex.pts.all(nee.list[[1]]) #get the point locations
 
 #extract NEE
-nee.df = raster::extract(nee.list, pts.sp)
-gpp.df= raster::extract(gpp.list, pts.sp)
+nee.df = raster::extract(NBP.stack2[[1]], pts.sp)
+gpp.df= raster::extract(GPP.stack2[[1]], pts.sp)
 ra.df = raster::extract(Ra.stack2[[1]], pts.sp)
 rh.df= raster::extract(Rh.stack2[[1]], pts.sp)
 
@@ -427,10 +428,10 @@ Rh.stack2[[2]] <- nee.list
 ###### calculate relationship between GPP/NDVI/EVI and NEE
 pts.sp = Ex.pts.all(nee.list[[1]]) #get the point locations
 
-nee.df = raster::extract(nee.list, pts.sp)
-gpp.df= raster::extract(gpp.list, pts.sp)
-ra.df = raster::extract(Ra.stack2[[1]], pts.sp)
-rh.df= raster::extract(Rh.stack2[[1]], pts.sp)
+nee.df = raster::extract(NBP.stack2[[2]], pts.sp)
+gpp.df= raster::extract(GPP.stack2[[2]], pts.sp)
+ra.df = raster::extract(Ra.stack2[[2]], pts.sp)
+rh.df= raster::extract(Rh.stack2[[2]], pts.sp)
 
 dat1.df = data.frame(gpp.df, nee.df)
 dat2.df = data.frame(gpp.df, ra.df)
@@ -554,16 +555,20 @@ data2.r1 = stack(data2.r1)
 data2.r1 = data2.r1*60*60*24*365*1000
 Rh.stack2[[3]] <- data2.r1
 
+Ra.stack2[[3]] = GPP.stack2[[3]] - Rh.stack2[[3]] - NBP.stack2[[3]]
+
 #calcuate correlationship
 
 ###### calculate relationship between GPP/NDVI/EVI and NEE
 pts.sp = Ex.pts.all(nee.list[[1]]) #get the point locations
 
-nee.df = raster::extract(nee.list, pts.sp)
-gpp.df= raster::extract(gpp.list, pts.sp)
+nee.df = raster::extract(NBP.stack2[[3]], pts.sp)
+gpp.df= raster::extract(GPP.stack2[[3]], pts.sp)
+ra.df = raster::extract(Ra.stack2[[3]], pts.sp)
 rh.df= raster::extract(Rh.stack2[[3]], pts.sp)
 
 dat1.df = data.frame(gpp.df, nee.df)
+dat2.df = data.frame(gpp.df, ra.df)
 dat3.df = data.frame(gpp.df, rh.df)
 
 #calculate the relationship
@@ -573,6 +578,14 @@ dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
 R1.stack[[3]] <- dat1.corr
 P1.stack[[3]] <- dat1.p
 
+#calculate the relationship
+dat1.df1 = apply(dat2.df, 1, cor.test1)                         
+# change to raster: GPP:NEE
+dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+
+R2.stack[[3]] <- dat1.corr
+P2.stack[[3]] <- dat1.p
 #calculate the relationship
 dat1.df1 = apply(dat3.df, 1, cor.test1)                         
 dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
