@@ -83,3 +83,44 @@ coordinates(srdb5.sp2) <- ~Longitude + Latitude
 projection(srdb5.sp2) <- "+proj=longlat +datum=WGS84"
 
 writeOGR(srdb5.sp2, "F:/zhihua/dataset/srdb_v3-2", "srdb5.sp2", driver="ESRI Shapefile")
+
+## assess the correlationship between Rs_annual and T/P
+library(MASS)
+
+dat.new1 = data.frame(MAT = seq(1,30, length.out = 30), MAP = mean(srdb5$MAP, na.rm = TRUE))
+dat.new2 = data.frame(MAT = mean(srdb5$MAT, na.rm = TRUE), MAP = seq(50,1500, length.out = 30))
+
+lm1.rh = lm(Rs_annual~poly(MAT,2)+poly(MAP,2), data = srdb5, na.action=na.exclude)
+lm1.rh = stepAIC(lm1.rh)
+#construct new data for prediction
+pred1 = predict(lm1.rh, newdata = dat.new1)
+pred2 = predict(lm1.rh, newdata = dat.new2)
+reg.abs.mod.pred1.rh <- data.frame(MAT = dat.new1$MAT, predt = pred1, MAP = dat.new2$MAP, predp = pred2)
+
+delt.rh = diff(reg.abs.mod.pred1.rh$predp)
+
+par(mar=c(5,5,1,1))
+#plot the relationship
+plot(0, xlim = c(0, 1500), ylim = c(0,2000),bty='n',pch='',xlab='Precipation (mm)',ylab=' GPP or ER (g C m-2 yr-1)', cex.axis = 2, cex.lab = 2)
+#plot(0, xlim = c(-5, 30), ylim = c(-2,2),bty='n',pch='',ylab='',xlab='')
+
+lines(smooth.spline(reg.abs.mod.pred1.rh[,3], reg.abs.mod.pred1.rh[,4]), lty = 1, lwd = 6, col = "black")
+points(srdb4_1$MAP, srdb4_1$Rs_annual, col = "black")
+
+#plot spatial sensitity of gpp vs er in response to precipitation
+library(oce)
+plotInset(100, 800, 800, 2000,
+          expr= {
+		  
+# plot(0, xlim = c(0, 1500), ylim = c(-20,150),bty='n',pch='',ylab='',xlab='',yaxt='n', ann=FALSE)
+plot(0, xlim = c(0, 1500), ylim = c(-20,150), pch='', xlab = "Precipation (mm)", ylab = "Spatial Sensitivty (Per 50mm)", cex.lab = 1.5, cex.axis = 1.5)
+
+#draw a box around the plot
+box()
+lines(smooth.spline(reg.abs.mod.pred1.rh[-1,3], delt.rh), lty = 1, lwd = 6, col = "blue")
+abline(h = 0)
+
+  },
+		  mar=c(5.5,0,0,0))
+
+
