@@ -1686,17 +1686,27 @@ nee.list[[i]] <- r1
 nee.list = stack(nee.list)
 NBP.stack2[[10]] <- nee.list
 
-nee.list = list()
+gpp.list = list()
 nc1.file = nc_open("./download/sdgvm/SDGVM_S2_ra.nc")
+v2 <- nc1.file$var[[1]]
 data2 <- ncvar_get( nc1.file, v2 ) #data2 is an 3-d array
-data2 <- data2[c(100:110),,]
 
-for (i in 1:11){
-data2.r = raster(data2[i,,],xmn=0, xmx=360, ymn=-90, ymx=90, 
+for (yr in 2000:2010){
+
+data2.tmp = data2[c((yr-1901)*12 + 1:12),,]
+
+tmp.list = list()
+for (i in 1:12){
+data2.r = raster(data2.tmp[i,,],xmn=0, xmx=360, ymn=-90, ymx=90, 
         crs = "+proj=longlat +datum=WGS84")
-data2.r[data2.r == -99999] = NA	
 data2.r = flip(data2.r, direction = "y")
-data2.r = data2.r*60*60*24*365*1000
+data2.r[data2.r == 99999] = NA
+tmp.list[[i]] <- data2.r
+}
+data2.r = stack(tmp.list)
+# Seem to be Kg C/m2/s: multiple *60*60*24*365*1000, change to g C/m2/yr
+data2.r = data2.r*sec.mon
+data2.r = calc(data2.r, sum, na.rm = TRUE)*1000
 # Change the xlim from 0~360 to -180 ~ 180
 r1 = data2.r
 r2 = r1
@@ -1704,29 +1714,40 @@ nr = nrow(r1); nc = ncol(r1)
 r1[,c(1:(nc/2))] = r2[,c((nc/2+1):nc)]
 r1[,c((nc/2+1):nc)] = r2[,c(1:(nc/2))]
 r1 <- shift(r1, x= -180, y=0)#shift by 180 degrees
-
+# crop to North America
 r1 = resample(r1, R.grd, method = "ngb")
 r1 = r1*R.grd2
 
-nee.list[[i]] <- r1
-# nee.list[[yr - 1999]] <- data2.r
+gpp.list[[yr - 1999]] <- r1
+# gpp.list[[yr - 1999]] <- data2.r
+
+print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %b %d %X %Y"), sep = " ") )
 
 }
+gpp.list = stack(gpp.list)
+Ra.stack2[[10]] <- gpp.list
 
-nee.list = stack(nee.list)
-Ra.stack2[[10]] <- nee.list
-
-nee.list = list()
+gpp.list = list()
 nc1.file = nc_open("./download/sdgvm/SDGVM_S2_rh.nc")
+v2 <- nc1.file$var[[1]]
 data2 <- ncvar_get( nc1.file, v2 ) #data2 is an 3-d array
-data2 <- data2[c(100:110),,]
 
-for (i in 1:11){
-data2.r = raster(data2[i,,],xmn=0, xmx=360, ymn=-90, ymx=90, 
+for (yr in 2000:2010){
+
+data2.tmp = data2[c((yr-1901)*12 + 1:12),,]
+
+tmp.list = list()
+for (i in 1:12){
+data2.r = raster(data2.tmp[i,,],xmn=0, xmx=360, ymn=-90, ymx=90, 
         crs = "+proj=longlat +datum=WGS84")
-data2.r[data2.r == -99999] = NA	
 data2.r = flip(data2.r, direction = "y")
-data2.r = data2.r*60*60*24*365*1000
+data2.r[data2.r == 99999] = NA
+tmp.list[[i]] <- data2.r
+}
+data2.r = stack(tmp.list)
+# Seem to be Kg C/m2/s: multiple *60*60*24*365*1000, change to g C/m2/yr
+data2.r = data2.r*sec.mon
+data2.r = calc(data2.r, sum, na.rm = TRUE)*1000
 # Change the xlim from 0~360 to -180 ~ 180
 r1 = data2.r
 r2 = r1
@@ -1734,17 +1755,20 @@ nr = nrow(r1); nc = ncol(r1)
 r1[,c(1:(nc/2))] = r2[,c((nc/2+1):nc)]
 r1[,c((nc/2+1):nc)] = r2[,c(1:(nc/2))]
 r1 <- shift(r1, x= -180, y=0)#shift by 180 degrees
-
+# crop to North America
 r1 = resample(r1, R.grd, method = "ngb")
 r1 = r1*R.grd2
 
-nee.list[[i]] <- r1
-# nee.list[[yr - 1999]] <- data2.r
+gpp.list[[yr - 1999]] <- r1
+# gpp.list[[yr - 1999]] <- data2.r
+
+print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %b %d %X %Y"), sep = " ") )
 
 }
+gpp.list = stack(gpp.list)
+Rh.stack2[[10]] <- gpp.list
 
-nee.list = stack(nee.list)
-Rh.stack2[[10]] <- nee.list
+Ra.stack2[[10]] <- GPP.stack2[[10]] - Rh.stack2[[10]] - NBP.stack2[[10]]
 
 #calcuate correlationship
 #extract NEE
@@ -1784,7 +1808,7 @@ dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
 R3.stack[[10]] <- dat1.corr
 P3.stack[[10]] <- dat1.p
 
-################### plot  ####################
+################### ensemble mean  ####################
 # for correlationship
 
 usa.state = na.state[which(na.state$ISO == "USA" & na.state$NAME_1 != "Alaska"), ]
@@ -1797,7 +1821,6 @@ mask2 = rasterize(usa.state, crop(mask1,usa.state))
 mask2 = mask2 > 0
 mask2[mask2 == 0] = NA
 
-## plot GPP/NEE r
 R1.stack2 = crop(stack(R1.stack),usa.state)
 P1.stack2 = crop(stack(P1.stack),usa.state)
 
@@ -1859,7 +1882,7 @@ legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",
 
 dev.off()
 
-## plot GPP/Rh r
+
 R3.stack2 = crop(stack(R3.stack),usa.state)
 P3.stack2 = crop(stack(P3.stack),usa.state)
 
@@ -1920,7 +1943,7 @@ legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",
 
 dev.off()
 
-## plot GPP/Ra r
+
 R2.stack2 = crop(stack(R2.stack),usa.state)
 P2.stack2 = crop(stack(P2.stack),usa.state)
 
@@ -1983,7 +2006,7 @@ legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",
 dev.off()
 
 
-### plot mean r, GPP/RA
+### plot mean r
 R2.stack3 = calc(R2.stack2, mean, na.rm = TRUE)
 P = calc(P2.stack2, function(x){length(which(x <= 0.1))})	
 P1 = P
@@ -2017,8 +2040,7 @@ plot(R2.stack3, zlim=c(-1,1),col = my.colors(100),
 
 
 dev.off()
-
-### plot mean r, GPP/NEE
+	 
 R1.stack3 = calc(R1.stack2, mean, na.rm = TRUE)
 P = calc(P1.stack2, function(x){length(which(x <= 0.1))})	
 P1 = P
@@ -2053,7 +2075,7 @@ plot(R1.stack3, zlim=c(-1,1),col = my.colors(100),
 
 dev.off()
 
-### plot mean r, GPP/RH
+
 R3.stack3 = calc(R3.stack2, mean, na.rm = TRUE)
 P = calc(P3.stack2, function(x){length(which(x <= 0.1))})	
 P1 = P
@@ -2089,7 +2111,9 @@ plot(R3.stack3, zlim=c(-1,1),col = my.colors(100),
 dev.off()
 
 
-##### use mean GPP/NBP/Ra/Rh to calculate correlationship
+
+
+##### use mean GPP/NBP/Ra/Rh
 GPP.mean = list()
 NBP.mean = list()
 Ra.mean = list()
@@ -2117,6 +2141,11 @@ GPP.mean = stack(GPP.mean)
 NBP.mean = stack(NBP.mean)
 Ra.mean = stack(Ra.mean)
 Rh.mean = stack(Rh.mean)
+
+plot(calc(GPP.mean, mean)); plot(usa.state, add= TRUE)
+plot(calc(NBP.mean, mean)); plot(usa.state, add= TRUE)
+plot(calc(Ra.mean, mean)); plot(usa.state, add= TRUE)
+plot(calc(Rh.mean, mean)); plot(usa.state, add= TRUE)
 
 #extract NEE
 nee.df = raster::extract(NBP.mean, pts.sp)
@@ -2200,8 +2229,6 @@ plot(dat1.corr, zlim=c(-1,1),col = my.colors(100),
 
 dev.off()
 
-
-
 #calculate the relationship
 dat1.df1 = apply(dat3.df, 1, cor.test1)                         
 # change to raster: GPP:NEE
@@ -2238,4 +2265,3 @@ plot(dat1.corr, zlim=c(-1,1),col = my.colors(100),
 dev.off()
 
 
-	
