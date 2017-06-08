@@ -560,8 +560,6 @@ Ra.stack2[[3]] = GPP.stack2[[3]] - Rh.stack2[[3]] - NBP.stack2[[3]]
 #calcuate correlationship
 
 ###### calculate relationship between GPP/NDVI/EVI and NEE
-pts.sp = Ex.pts.all(nee.list[[1]]) #get the point locations
-
 nee.df = raster::extract(NBP.stack2[[3]], pts.sp)
 gpp.df= raster::extract(GPP.stack2[[3]], pts.sp)
 ra.df = raster::extract(Ra.stack2[[3]], pts.sp)
@@ -573,23 +571,23 @@ dat3.df = data.frame(gpp.df, rh.df)
 
 #calculate the relationship
 dat1.df1 = apply(dat1.df, 1, cor.test1)                         
-dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
-dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+dat1.corr = Point2raster(dat1.df1[1,], raster = gpp.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = gpp.list[[1]])
 R1.stack[[3]] <- dat1.corr
 P1.stack[[3]] <- dat1.p
 
 #calculate the relationship
 dat1.df1 = apply(dat2.df, 1, cor.test1)                         
 # change to raster: GPP:NEE
-dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
-dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+dat1.corr = Point2raster(dat1.df1[1,], raster = gpp.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = gpp.list[[1]])
 
 R2.stack[[3]] <- dat1.corr
 P2.stack[[3]] <- dat1.p
 #calculate the relationship
 dat1.df1 = apply(dat3.df, 1, cor.test1)                         
-dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
-dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+dat1.corr = Point2raster(dat1.df1[1,], raster = gpp.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = gpp.list[[1]])
 
 R3.stack[[3]] <- dat1.corr
 P3.stack[[3]] <- dat1.p
@@ -627,7 +625,7 @@ print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %
 
 }
 gpp.list = stack(gpp.list)
-GPP.stack2[[4]] <- nee.list
+GPP.stack2[[4]] <- gpp.list
 
 nee.list = list()
 nc1.file = nc_open("./download/lpj/nbp.nc")
@@ -810,7 +808,7 @@ print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %
 
 }
 nee.list = stack(nee.list)
-GPP.stack2[[5]] <- nee.list
+NBP.stack2[[5]] <- nee.list
 
 nee.list = list()
 nc1.file = nc_open("./download/lpj_guess/LPJ_GUESS_s2_ra.nc")
@@ -1185,13 +1183,17 @@ data2.r1[[i]] <- r1
 }
 nee.list = stack(data2.r1)
 Rh.stack2[[7]] <- nee.list
+
+Ra.stack2[[7]] = GPP.stack2[[7]] - Rh.stack2[[7]] - NBP.stack2[[7]]  
 #extract NEE
 nee.df = raster::extract(NBP.stack2[[7]], pts.sp)
 gpp.df= raster::extract(GPP.stack2[[7]], pts.sp)
+ra.df= raster::extract(Ra.stack2[[7]], pts.sp)
 rh.df= raster::extract(Rh.stack2[[7]], pts.sp)
 
 #combine gpp and nee
 dat1.df = data.frame(gpp.df, nee.df)
+dat2.df = data.frame(gpp.df, ra.df)
 dat3.df = data.frame(gpp.df, rh.df)
 
 #calculate the relationship
@@ -1202,6 +1204,15 @@ dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
 
 R1.stack[[7]] <- dat1.corr
 P1.stack[[7]] <- dat1.p
+
+#calculate the relationship
+dat1.df1 = apply(dat2.df, 1, cor.test1)                         
+# change to raster: GPP:NEE
+dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+
+R2.stack[[7]] <- dat1.corr
+P2.stack[[7]] <- dat1.p
 
 #calculate the relationship
 dat1.df1 = apply(dat3.df, 1, cor.test1)                         
@@ -1291,7 +1302,7 @@ print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %
 
 }
 nee.list = stack(nee.list)
-NBP.stack[[8]] <- nee.list
+NBP.stack2[[8]] <- nee.list
 
 nee.list = list()
 nc1.file = nc_open("./download/triffid/ra.nc")
@@ -1327,7 +1338,7 @@ print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %
 
 }
 nee.list = stack(nee.list)
-Ra.stack[[8]] <- nee.list
+Ra.stack2[[8]] <- nee.list
 
 
 nee.list = list()
@@ -1364,7 +1375,7 @@ print(paste("Finish calculating for year ", yr, " at ", format(Sys.time(), "%a %
 
 }
 nee.list = stack(nee.list)
-Rh.stack[[8]] <- nee.list
+Rh.stack2[[8]] <- nee.list
 
 #calcuate correlationship
 #extract NEE
@@ -1772,3 +1783,459 @@ dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
 
 R3.stack[[10]] <- dat1.corr
 P3.stack[[10]] <- dat1.p
+
+################### plot  ####################
+# for correlationship
+
+usa.state = na.state[which(na.state$ISO == "USA" & na.state$NAME_1 != "Alaska"), ]
+na.ext <- extent(-180,-48,15,85)
+
+mask1 = R.grd2
+pts.sp = Ex.pts.all(mask1) #get the point locations
+
+mask2 = rasterize(usa.state, crop(mask1,usa.state))
+mask2 = mask2 > 0
+mask2[mask2 == 0] = NA
+
+## plot GPP/NEE r
+R1.stack2 = crop(stack(R1.stack),usa.state)
+P1.stack2 = crop(stack(P1.stack),usa.state)
+
+R1.stack2 = R1.stack2*mask2
+P1.stack2 = P1.stack2*mask2
+
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/R.stack3.grd",overwrite=TRUE) 
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/P.stack3.grd",overwrite=TRUE) 
+
+#plot individual correlationship map
+Mod.name = c("CLM4C", "CLM4CN", "HYLAND", "LPJ", "LPJ-GUESS", "OCN", "ORCHIDEE","TRIFFID","VEGAS","SDGVM")
+
+png("D:/zhihua/dataset/results/productivity.nee.cor.trendy.png",height = 2500, width = 3500, res = 300, units = "px")
+
+par(mfrow=c(4,3),mar=c(0,0,0,0)+.1)
+my.colors = colorRampPalette(c("blue", "white", "red"))
+
+for (i in 1:10){
+pts.sp.sig1 = Ex.pts(P1.stack2[[i]], sig.level = 0.1) #extract significant relation points
+
+plot(R1.stack2[[i]], zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, Mod.name[i], cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+}
+
+
+plot(calc(R1.stack2, mean, na.rm = TRUE), zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, "Mean r", cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+
+P = calc(P1.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig1 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+
+
+plot.new()
+plot(R1.stack2[[i]], zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="r", side=4, font=2, line=2.5, cex=1.2),
+    smallplot=c(0.3,0.5, 0.2,0.7))
+	 par(mar = par("mar"))
+
+legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",  cex = 1.5,  box.lwd = 0,box.col = "white",bg = "white")
+
+
+dev.off()
+
+## plot GPP/Rh r
+R3.stack2 = crop(stack(R3.stack),usa.state)
+P3.stack2 = crop(stack(P3.stack),usa.state)
+
+R3.stack2 = R3.stack2*mask2
+P3.stack2 = P3.stack2*mask2
+
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/R.stack3.grd",overwrite=TRUE) 
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/P.stack3.grd",overwrite=TRUE) 
+
+#plot individual correlationship map
+Mod.name = c("CLM4C", "CLM4CN", "HYLAND", "LPJ", "LPJ-GUESS", "OCN", "ORCHIDEE","TRIFFID","VEGAS","SDGVM")
+
+png("F:/zhihua/dataset/results/productivity.rh.cor.trendy.png",height = 2500, width = 3500, res = 300, units = "px")
+
+par(mfrow=c(4,3),mar=c(0,0,0,0)+.1)
+my.colors = colorRampPalette(c("blue", "white", "red"))
+
+for (i in 1:10){
+pts.sp.sig1 = Ex.pts(P3.stack2[[i]], sig.level = 0.1) #extract significant relation points
+
+plot(R3.stack2[[i]], zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, Mod.name[i], cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+}
+
+
+plot(calc(R3.stack2, mean, na.rm = TRUE), zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, "Mean r", cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+
+P = calc(P3.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig1 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+
+
+plot.new()
+plot(R3.stack2[[i]], zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="r", side=4, font=2, line=2.5, cex=1.2),
+    smallplot=c(0.3,0.5, 0.2,0.7))
+	 par(mar = par("mar"))
+
+legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",  cex = 1.5,  box.lwd = 0,box.col = "white",bg = "white")
+
+dev.off()
+
+## plot GPP/Ra r
+R2.stack2 = crop(stack(R2.stack),usa.state)
+P2.stack2 = crop(stack(P2.stack),usa.state)
+
+R2.stack2 = R2.stack2*mask2
+P2.stack2 = P2.stack2*mask2
+
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/R.stack3.grd",overwrite=TRUE) 
+# writeRaster(R1.stack2,"D:/zhihua/dataset/trendy/P.stack3.grd",overwrite=TRUE) 
+
+#plot individual correlationship map
+Mod.name = c("CLM4C", "CLM4CN", "HYLAND", "LPJ", "LPJ-GUESS", "OCN", "ORCHIDEE","TRIFFID","VEGAS","SDGVM")
+
+png("F:/zhihua/dataset/results/productivity.ra.cor.trendy.png",height = 2500, width = 3500, res = 300, units = "px")
+
+par(mfrow=c(4,3),mar=c(0,0,0,0)+.1)
+my.colors = colorRampPalette(c("blue", "white", "red"))
+
+for (i in 1:10){
+pts.sp.sig1 = Ex.pts(P2.stack2[[i]], sig.level = 0.1) #extract significant relation points
+
+plot(R2.stack2[[i]], zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, Mod.name[i], cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+
+}
+
+
+plot(calc(R2.stack2, mean, na.rm = TRUE), zlim=c(-1,1),col = my.colors(100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+text(x = -115, y = 28, "Mean r", cex = 2)
+plot(usa.state, lwd = 1.5, add = TRUE)
+
+P = calc(P2.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig1 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+
+
+plot.new()
+plot(R2.stack2[[i]], zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="r", side=4, font=2, line=2.5, cex=1.2),
+    smallplot=c(0.3,0.5, 0.2,0.7))
+	 par(mar = par("mar"))
+
+legend(x = -100, y = 43, legend = "Correlation between NBP and GPP (2000-2010)",  cex = 1.5,  box.lwd = 0,box.col = "white",bg = "white")
+
+dev.off()
+
+
+### plot mean r, GPP/RA
+R2.stack3 = calc(R2.stack2, mean, na.rm = TRUE)
+P = calc(P2.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig2 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+	
+		
+png("F:/zhihua/dataset/results/productivity.ra.cor.annual.usa.mean.trendy2.png",height = 1500, width = 2500, res = 300, units = "px")
+	
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(R2.stack3, zlim=c(-1,1),col = my.colors(100), 
+					main = "TRENDY Mean r Between GPP and Ra",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+					
+plot(R2.stack3, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+
+dev.off()
+
+### plot mean r, GPP/NEE
+R1.stack3 = calc(R1.stack2, mean, na.rm = TRUE)
+P = calc(P1.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig2 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+	
+		
+png("F:/zhihua/dataset/results/productivity.nee.cor.annual.usa.mean.trendy2.png",height = 1500, width = 2500, res = 300, units = "px")
+	
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(R1.stack3, zlim=c(-1,1),col = my.colors(100), 
+					main = "TRENDY Mean r Between GPP and NEE",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+					
+plot(R1.stack3, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+
+dev.off()
+
+### plot mean r, GPP/RH
+R3.stack3 = calc(R3.stack2, mean, na.rm = TRUE)
+P = calc(P3.stack2, function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 7] = 1
+P1[P > 7] = 0.05
+pts.sp.sig2 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+	
+		
+png("F:/zhihua/dataset/results/productivity.rh.cor.annual.usa.mean.trendy2.png",height = 1500, width = 2500, res = 300, units = "px")
+	
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(R3.stack3, zlim=c(-1,1),col = my.colors(100), 
+					main = "TRENDY Mean r Between GPP and Rh",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+					
+plot(R3.stack3, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+
+dev.off()
+
+
+##### use mean GPP/NBP/Ra/Rh to calculate correlationship
+GPP.mean = list()
+NBP.mean = list()
+Ra.mean = list()
+Rh.mean = list()
+
+for (i in 1:11){
+
+GPP1 = stack(GPP.stack2[[1]][[i]],GPP.stack2[[2]][[i]],GPP.stack2[[3]][[i]],GPP.stack2[[4]][[i]],GPP.stack2[[5]][[i]],
+            GPP.stack2[[6]][[i]],GPP.stack2[[7]][[i]],GPP.stack2[[8]][[i]],GPP.stack2[[9]][[i]],GPP.stack2[[10]][[i]])
+NBP1 = stack(NBP.stack2[[1]][[i]],NBP.stack2[[2]][[i]],NBP.stack2[[3]][[i]],NBP.stack2[[4]][[i]],NBP.stack2[[5]][[i]],
+            NBP.stack2[[6]][[i]],NBP.stack2[[7]][[i]],NBP.stack2[[8]][[i]],NBP.stack2[[9]][[i]],NBP.stack2[[10]][[i]])
+Ra1 = stack(Ra.stack2[[1]][[i]],Ra.stack2[[2]][[i]],Ra.stack2[[3]][[i]],Ra.stack2[[4]][[i]],Ra.stack2[[5]][[i]],
+            Ra.stack2[[6]][[i]],Ra.stack2[[7]][[i]],Ra.stack2[[8]][[i]],Ra.stack2[[9]][[i]],Ra.stack2[[10]][[i]])
+Rh1 = stack(Rh.stack2[[1]][[i]],Rh.stack2[[2]][[i]],Rh.stack2[[3]][[i]],Rh.stack2[[4]][[i]],Rh.stack2[[5]][[i]],
+            Rh.stack2[[6]][[i]],Rh.stack2[[7]][[i]],Rh.stack2[[8]][[i]],Rh.stack2[[9]][[i]],Rh.stack2[[10]][[i]])
+
+GPP.mean[[i]] <- calc(GPP1, mean, na.rm = TRUE)	
+NBP.mean[[i]] <- calc(NBP1, mean, na.rm = TRUE)			
+Ra.mean[[i]] <- calc(Ra1, mean, na.rm = TRUE)			
+Rh.mean[[i]] <- calc(Rh1, mean, na.rm = TRUE)			
+		
+}
+
+GPP.mean = stack(GPP.mean)
+NBP.mean = stack(NBP.mean)
+Ra.mean = stack(Ra.mean)
+Rh.mean = stack(Rh.mean)
+
+#extract NEE
+nee.df = raster::extract(NBP.mean, pts.sp)
+gpp.df= raster::extract(GPP.mean, pts.sp)
+ra.df = raster::extract(Ra.mean, pts.sp)
+rh.df= raster::extract(Rh.mean, pts.sp)
+
+#combine gpp and nee
+dat1.df = data.frame(gpp.df, nee.df)
+dat2.df = data.frame(gpp.df, ra.df)
+dat3.df = data.frame(gpp.df, rh.df)
+
+#calculate the relationship
+dat1.df1 = apply(dat1.df, 1, cor.test1)                         
+# change to raster: GPP:NEE
+dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+
+dat1.corr = dat1.corr*mask2
+dat1.p = dat1.p*mask2
+pts.sp.sig1 = Ex.pts(dat1.p, sig.level = 0.1) #extract significant relation points
+
+png("F:/zhihua/dataset/results/productivity.nee.cor.annual.usa.mean.trendy.png",height = 1500, width = 2500, res = 300, units = "px")
+
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100), 
+					main = "r Between Mean GPP and NEE",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+					
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+dev.off()
+
+
+#calculate the relationship
+dat1.df1 = apply(dat2.df, 1, cor.test1)                         
+# change to raster: GPP:NEE
+dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+
+dat1.corr = dat1.corr*mask2
+dat1.p = dat1.p*mask2
+pts.sp.sig1 = Ex.pts(dat1.p, sig.level = 0.1) #extract significant relation points
+
+png("F:/zhihua/dataset/results/productivity.ra.cor.annual.usa.mean.trendy.png",height = 1500, width = 2500, res = 300, units = "px")
+
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100), 
+					main = "r Between Mean GPP and Ra",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+					
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+dev.off()
+
+
+
+#calculate the relationship
+dat1.df1 = apply(dat3.df, 1, cor.test1)                         
+# change to raster: GPP:NEE
+dat1.corr = Point2raster(dat1.df1[1,], raster = nee.list[[1]])
+dat1.p = Point2raster(dat1.df1[2,], raster = nee.list[[1]])
+
+dat1.corr = dat1.corr*mask2
+dat1.p = dat1.p*mask2
+pts.sp.sig1 = Ex.pts(dat1.p, sig.level = 0.1) #extract significant relation points
+
+png("F:/zhihua/dataset/results/productivity.rh.cor.annual.usa.mean.trendy.png",height = 1500, width = 2500, res = 300, units = "px")
+
+my.colors = colorRampPalette(c("blue", "white", "red"))
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100), 
+					main = "r Between Mean GPP and Rh",
+					legend=FALSE,
+                    # axes=FALSE,
+                    # box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+					
+plot(dat1.corr, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=0.5, legend.shrink=0.5,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+		 smallplot=c(0.73,0.76, 0.25,0.45))
+	 par(mar = par("mar"))
+
+dev.off()
+
+
+	
