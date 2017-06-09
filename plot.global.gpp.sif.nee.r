@@ -315,3 +315,150 @@ plot(cue2,
 				par(mar = par("mar"))
 		
 dev.off()
+
+
+## plot sif/apar at CONUS
+par = raster("G:/modis_data/tmp/fparmeancmg1_export.tif")
+par = aggregate(par, fact = 10, fun = mean, na.rm = TRUE, expand = TRUE)
+
+# read into GOME SIF product.
+sif = stack("F:/zhihua/dataset/gome2_sif/sif.annual.2007-2015.grd") 
+
+sif = calc(sif, mean)
+sif = crop(sif, R.grd3)
+extent(sif) <- extent(R.grd3)
+sif.mean2 = sif*R.grd3
+
+r = sif.mean2/par
+
+# r <- focal(r, w=matrix(1/9,nrow=3,ncol=3)) 
+
+library(rworldmap)
+
+newmap <- getMap(resolution = "coarse")
+
+ png("F:/zhihua/dataset/results/parsif.png",height = 1500, width = 1500, res = 300, units = "px")
+
+# plot start from here
+par(mfrow=c(3,1),mar=c(0,0,0,0)+.1)
+
+####### Fpar
+plot(par, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, add = TRUE, lty = 2)
+tx = expression("Mean Annual FPAR by MODIS, 2007 - 2014")
+tx = "a)"
+text(x = -115, y = 29, tx, cex = 2)
+# text(x = 0, y = -85, "Mean Annual GPP by MODIS (g C/m-2*yr, 2000-2014)", cex = 2)
+
+#add legend
+plot(par, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.75,0.8, 0.1,0.55))
+				par(mar = par("mar"))
+
+				
+####### SIF plot 
+my.colors = colorRampPalette(c("red", "white", "blue"))
+plot( sif.mean2, 
+                    # zlim=c(-100,100),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, add = TRUE, lty = 2)
+tx = expression("Mean Annual SIF by GOME2" ~ (mu~W ~ m^{-2} ~ mu~m^{-1}~ ", 2007 - 2014"))
+tx = "b)"
+text(x = -115, y = 29, tx, cex = 2)
+
+#add legend
+plot(sif.mean2, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.75,0.8, 0.1,0.55))
+				par(mar = par("mar"))
+				
+				
+####### SIF/fpar plot 
+my.colors = colorRampPalette(c("red", "white", "blue"))
+plot( r, 
+                    # zlim=c(-100,100),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, add = TRUE, lty = 2)
+tx = expression("Mean Annual SIF/FPAR")
+tx = "b)"
+text(x = -115, y = 29, tx, cex = 2)
+
+#add legend
+plot(r, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.75,0.8, 0.1,0.55))
+				par(mar = par("mar"))
+dev.off()
+
+
+
+ png("F:/zhihua/dataset/results/parsif2.png",height = 2000, width = 3000, res = 300, units = "px")
+
+				
+####### SIF/fpar plot 
+my.colors = colorRampPalette(c("red", "white", "blue"))
+plot( r, 
+                    # zlim=c(-100,100),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, add = TRUE, lty = 2)
+tx = expression("Ratio between SIF/FPAR")
+# tx = "b)"
+text(x = -100, y = 25, tx, cex = 2)
+
+#add legend
+plot(r, 
+                    # zlim=c(-1,1),
+					# col = my.colors(100), 
+					col = rainbow(n = 100), 
+					legend.only=TRUE,
+					legend.width=0.5, legend.shrink=0.5,
+					axis.args=list(cex.axis=1.5),
+					legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+					smallplot=c(0.75,0.8, 0.3,0.55))
+				par(mar = par("mar"))
+				
+dev.off()
+						
+						
+
