@@ -584,6 +584,16 @@ delt.er2 = apply(delt.er, 1, cifun)
 prep.grd = prep = seq(100,1300, length.out = 25)
 airtemp.grd = seq(1,25, length.out = 25)
 
+# for two regions
+w.idx = which(prep.grd < 750)
+e.idx = which(prep.grd > 750)
+
+delt = data.frame(mean = c(mean(delt.gpp[e.idx-1,]),mean(delt.gpp[w.idx,]),mean(delt.er[e.idx-1,]),mean(delt.er[w.idx,])),
+					se = c(sd(delt.gpp[e.idx-1,]),sd(delt.gpp[w.idx,]),sd(delt.er[e.idx-1,]),sd(delt.er[w.idx,])),
+				    flux = c("GPP","GPP","TER","TER"),
+				    region = c("> 750 mm", "< 750 mm","> 750 mm","< 750 mm"),
+					type = rep("spatial",4))
+
 # dat.df.annual.mean$igbp = CRO GRA DBF ENF DBF DBF CRO ENF DBF MF  DBF WSA MF  GRA ENF OSH GRA
 # DBF/MF:1, ENF:2, others:3
 pch =   c(3,  3,  1, 2,   1, 1,  3,  2,  1,  1,   1,  3, 1,  3,  2,  3,3)
@@ -690,7 +700,8 @@ se <- function(x) sqrt(var(x)/length(x))
 D1 = data.frame(mean = c(mean(x11),mean(x12),mean(x13),mean(x14)),
 				se = c(se(x11),se(x12),se(x13),se(x14)),
 				flux = c("GPP","GPP","TER","TER"),
-				region = c("> 750 mm", "< 750 mm","> 750 mm","< 750 mm"))
+				region = c("> 750 mm", "< 750 mm","> 750 mm","< 750 mm"),
+				type = rep("temproal",4))
 	
 
 # write.csv(D1, "F:/zhihua/dataset/results2/D1.csv")
@@ -1164,3 +1175,50 @@ points(x = mean(x11), y = 5, type = "p", pch = 17, cex = 2, col = "red")
 
   },
 		  mar=c(5,1,0,0))
+
+
+
+
+### DOES NOT WORK FROM HERE
+D3 = rbind(delt, D1)
+write.csv(D3, "F:/zhihua/dataset/results2/EC.sensitivity.csv")
+
+reg.abs.mod.pred1.er.model.coef = c() #store model coefficients
+colnames(rmse.er) = c("rmse","mae","aic","r2") 
+colnames(rmse.gpp) = c("rmse","mae","aic","r2") 
+rmse1 = rbind(data.frame(rmse.gpp, flux = "gpp"),data.frame(rmse.er, flux = "er"))
+write.csv(rmse1, "F:/zhihua/dataset/results2/EC.rmse1.csv")
+
+colnames(reg.abs.mod.pred1.er.model.coef) = c("int","t2","t","p2","p") 
+colnames(reg.abs.mod.pred1.gpp.model.coef) = c("int","t2","t","p2","p") 
+coef1 = rbind(data.frame(reg.abs.mod.pred1.gpp.model.coef, flux = "gpp"),data.frame(reg.abs.mod.pred1.er.model.coef, flux = "er"))
+write.csv(coef1, "F:/zhihua/dataset/results2/EC.coef1.csv")
+
+
+p1 <- ggplot(data=D3, aes(x=region, y=mean, fill=flux)) + 
+    geom_bar(colour="black", stat="identity",
+             position=position_dodge(),
+             size=.3) + 
+    facet_grid(.~type)+			 
+	# ylab(ylab) + 	 
+    ylab(expression(paste(beta ["temporal"]))) + 
+	xlab("Site by MAP") + # Set axis labels
+    # ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() + 
+	geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
+                  width=.2,                    # Width of the error bars
+                  position=position_dodge(.9)) + 
+	theme(legend.position=c(.5, .8)) + 	
+	theme(legend.title=element_blank()) +
+	theme(legend.text = element_text(size = 12)) +
+	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+    theme(strip.text.x = element_text(size=12))+
+    theme(strip.text.y = element_text(size=12)) +
+    scale_fill_manual(values=color1, 
+                    name="",
+                    breaks=levels(D1$flux),
+                    labels=levels(D1$flux)) +
+	# geom_text(aes(label = "2"), vjust = "inward", hjust = "inward") + 
+	geom_text(x = 0.5, y = 70, label = "2)",size=6)
+	
