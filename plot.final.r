@@ -2,11 +2,18 @@
 d1.ec = data.frame(read.csv("F:/zhihua/dataset/results2/EC.sensitivity.csv"))[,-1]
 d1.rs = data.frame(read.csv("F:/zhihua/dataset/results2/RS.sensitivity.csv"))[,-1]
 d1.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/trendy.sensitivity.csv"))[,-1]
+d1.lpj = data.frame(read.csv("F:/zhihua/dataset/results2/lpj.sensitivity.csv"))[,-1]
 
 D1 = rbind(data.frame(d1.ec, Method = "EC"),
      data.frame(d1.rs, Method = "RS"),
+     data.frame(d1.trendy, Method = "TRENDY"),
+     data.frame(d1.trendy, Method = "LPJ"))
+ 
+D1 = rbind(data.frame(d1.ec, Method = "EC"),
+     data.frame(d1.rs, Method = "RS"),
      data.frame(d1.trendy, Method = "TRENDY"))
-  
+ 
+
 levels(D1$type)  <- c("Spatial","Temporal")
 levels(D1$region)  <- c("< 750","> 750")
 
