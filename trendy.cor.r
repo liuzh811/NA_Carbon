@@ -10,6 +10,8 @@ require(ncdf4)
 usa.state = readOGR(dsn="F:\\zhihua\\dataset\\ecoregion", layer = "usa.state")
 usa.state = usa.state[-which(usa.state$NAME_1 == "Hawaii" | usa.state$NAME_1 == "Alaska"),]
 
+na.ext <- extent(-180,-48,15,85)
+
 #### read into trendy, 
 trendy.ra.mean = stack("F:/zhihua/dataset/trendy/Trendy.Ra.mean.grd")
 trendy.rh.mean = stack("F:/zhihua/dataset/trendy/Trendy.Rh.mean.grd")
@@ -128,8 +130,10 @@ dat1$p.dif = dat1$gpp.p - dat1$er.p
 dat1$lc = 1
 dat1$lc[dat1$prep > 750] = 2
 
+library(MASS)
+
 #spatial relationship
-dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], nee = nee.df.mn[-4],er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
+dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
 
 lm1.er = lm(er~poly(airtemp,2)+poly(prep,2), data = dat.df.annual.mean, na.action=na.exclude)
 lm1.er = stepAIC(lm1.er)
@@ -148,13 +152,6 @@ lm1.gpp = stepAIC(lm1.gpp)
 pred1 = predict(lm1.gpp, newdata = dat.new1)
 pred2 = predict(lm1.gpp, newdata = dat.new2)
 reg.abs.mod.pred1.gpp <- data.frame(airtemp = seq(1,23, length.out = 25), predt = pred1, prep = seq(100,1300, length.out = 25), predp = pred2)
-
-lm1.nee = lm(nee~poly(airtemp,2)+poly(prep,2), data = dat.df.annual.mean, na.action=na.exclude)
-#lm1.nee = stepAIC(lm1.nee)
-
-pred1 = predict(lm1.nee, newdata = dat.new1)
-pred2 = predict(lm1.nee, newdata = dat.new2)
-reg.abs.mod.pred1.nee <- data.frame(airtemp = seq(1,23, length.out = 25), predt = pred1, prep = seq(100,1300, length.out = 25), predp = pred2)
 
 delt.er = diff(reg.abs.mod.pred1.er$predp)
 delt.gpp = diff(reg.abs.mod.pred1.gpp$predp)
@@ -252,7 +249,7 @@ points(x = mean(x11), y = 3, type = "p", pch = 17, cex = 2, col = "red")
 ############################## leave-one-out methods ###################################
 
 #spatial relationship
-dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], nee = nee.df.mn[-4],er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
+dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
 
 reg.abs.mod.pred1.er.list = list()
 reg.abs.mod.pred1.gpp.list = list()
