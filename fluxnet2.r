@@ -1,5 +1,5 @@
-## 5/22/2017
-## clean up code for calculating relationship between GPP/ER with precipitation and temperature
+## 6/14/2017
+## final script to produce figures in foler results2
 
 ## use leave-one-out method and Mente Carlo to estimate the uncertainty of sensitivity
 
