@@ -88,6 +88,9 @@ ensm.nee2[[i]] <- calc(temp.r, median, na.rm = TRUE)
 ensm.nee1 = stack(ensm.nee1)
 ensm.nee2 = stack(ensm.nee2)
 
+writeRaster(ensm.nee1,"F:/zhihua/dataset/co2_inversion/NEE.annual.mean.grd",overwrite=TRUE) 
+writeRaster(ensm.nee2,"F:/zhihua/dataset/co2_inversion/NEE.annual.median.grd",overwrite=TRUE) 
+
 ######### section 2: read into MODIS GPP and aggregate into 1 degree resolution #########################################
 na.ext <- extent(-180,-48,15,85)
 
