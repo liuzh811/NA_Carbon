@@ -17,8 +17,7 @@ D1 = rbind(data.frame(d1.ec, Method = "EC"),
 levels(D1$type)  <- c("Spatial","Temporal")
 levels(D1$region)  <- c("< 750","> 750")
 
-color1 = c("grey20", "grey90")
-ylab=expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " Per 100 mm")
+ylab=expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "/100mm")
 
 p1 <- ggplot(data=D1, aes(x=region, y=mean, fill=flux)) + 
     geom_bar(colour="black", stat="identity",
@@ -29,7 +28,7 @@ p1 <- ggplot(data=D1, aes(x=region, y=mean, fill=flux)) +
     # ylab(expression(paste(beta ["temporal"]))) + 
 	# xlab("Region by MAP") + 
 	# ylab("") + 
-	xlab("Region By Map (mm)") + 
+	xlab("MAP (mm)") + 
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	geom_errorbar(aes(ymin=mean-se, ymax=mean+se),
@@ -41,13 +40,20 @@ p1 <- ggplot(data=D1, aes(x=region, y=mean, fill=flux)) +
 	theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
     theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
     theme(strip.text.x = element_text(size=18))+
-    theme(strip.text.y = element_text(size=18)) +
-    scale_fill_manual(values=color1, 
+    theme(strip.text.y = element_text(size=18)) 
+
+color1 = c("grey20", "grey90")
+p1 + scale_fill_manual(values=color1, 
                     name="",
                     breaks=levels(D1$flux),
                     labels=levels(D1$flux)) 
 
-print(p1)
+ggsave("F:/zhihua/dataset/results2/sensitivity.bw.png", width = 8, height = 6, units = "in")
 
-ggsave("F:/zhihua/dataset/results2/sensitivity.png", width = 8, height = 6, units = "in")
+color2 = c("blue", "red")
+p1 + scale_fill_manual(values=color2, 
+                    name="",
+                    breaks=levels(D1$flux),
+                    labels=levels(D1$flux)) 
 
+ggsave("F:/zhihua/dataset/results2/sensitivity.color.png", width = 8, height = 6, units = "in")
