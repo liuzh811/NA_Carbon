@@ -512,24 +512,28 @@ plot(0, xlim = c(0, 1500),
 		cex.axis = 2, cex.lab = 2)
 
 ### plot gpp
-lines(prep.grd, pred.gpp2[2,], lty = 1, lwd = 3, col = "green")
+lines(prep.grd, pred.gpp2[2,], lty = 1, lwd = 3, col = "blue")
 # add fill
-polygon(c(rev(prep.grd), prep.grd), c(rev(pred.gpp2[3,]), pred.gpp2[1,]), col = 'grey80', border = NA)
+polygon(c(rev(prep.grd), prep.grd), c(rev(pred.gpp2[3,]), pred.gpp2[1,]), 
+ col = rgb(0,0,1,0.3), 
+	border = NA)
 # intervals
-lines(prep.grd,pred.gpp2[3,], lty = 'dashed', col = 'green')
-lines(prep.grd,pred.gpp2[1,], lty = 'dashed', col = 'green')
-lines(prep.grd, pred.gpp2[2,], lty = 1, lwd = 3, col = "green")
+# lines(prep.grd,pred.gpp2[3,], lty = 'dashed', col = 'green')
+# lines(prep.grd,pred.gpp2[1,], lty = 'dashed', col = 'green')
+# lines(prep.grd, pred.gpp2[2,], lty = 1, lwd = 3, col = "green")
 # points(dat.df.annual.mean$prep, dat.df.annual.mean$gpp, col = "green")
 
 ### plot er
 lines(prep.grd, pred.er2[2,], lty = 1, lwd = 3, col = "red")
 # add fill
-polygon(c(rev(prep.grd), prep.grd), c(rev(pred.er2[3,]), pred.er2[1,]), col = 'grey80', border = NA)
+polygon(c(rev(prep.grd), prep.grd), c(rev(pred.er2[3,]), pred.er2[1,]), 
+ col = rgb(1,0,0,0.3), 	
+	border = NA)
 # intervals
-lines(prep.grd,pred.er2[3,], lty = 'dashed', col = 'red')
-lines(prep.grd,pred.er2[1,], lty = 'dashed', col = 'red')
-lines(prep.grd, pred.er2[2,], lty = 1, lwd = 3, col = "red")
-points(dat.df.annual.mean$prep, dat.df.annual.mean$er, col = "red")
+# lines(prep.grd,pred.er2[3,], lty = 'dashed', col = 'red')
+# lines(prep.grd,pred.er2[1,], lty = 'dashed', col = 'red')
+# lines(prep.grd, pred.er2[2,], lty = 1, lwd = 3, col = "red")
+# points(dat.df.annual.mean$prep, dat.df.annual.mean$er, col = "red")
 
 # plot spatial sensitivity
 library(oce)
@@ -547,24 +551,39 @@ box()
 lines(prep.grd[-1], delt.gpp2[2,]*2, lty = 1, lwd = 3, col = "green")
 # add fill
  polygon(c(rev(prep.grd[-1]), prep.grd[-1]), 
-         c(rev(delt.gpp2[3,]*2), delt.gpp2[1,]*2), col = 'grey90', border = NA)
- lines(prep.grd[-1], delt.gpp2[2,]*2, lty = 1, lwd = 3, col = "green")
+         c(rev(delt.gpp2[3,]*2), delt.gpp2[1,]*2), 
+	col = rgb(0,0,1,0.3), 
+	 border = NA)
+ lines(prep.grd[-1], delt.gpp2[2,]*2, lty = 1, lwd = 3, col = "blue")
 # intervals
-lines(prep.grd[-1],delt.gpp2[3,]*2, lty = 'dashed', col = 'green')
-lines(prep.grd[-1],delt.gpp2[1,]*2, lty = 'dashed', col = 'green')
+# lines(prep.grd[-1],delt.gpp2[3,]*2, lty = 'dashed', col = 'green')
+# lines(prep.grd[-1],delt.gpp2[1,]*2, lty = 'dashed', col = 'green')
 
 #######  ER
 lines(prep.grd[-1], delt.er2[2,]*2, lty = 1, lwd = 3, col = "red")
 # add fill
  polygon(c(rev(prep.grd[-1]), prep.grd[-1]), 
-         c(rev(delt.er2[3,]*2), delt.er2[1,]*2), col = 'grey90', border = NA)
+         c(rev(delt.er2[3,]*2), delt.er2[1,]*2), 
+	 	col = rgb(1,0,0,0.3), 
+	 border = NA)
  lines(prep.grd[-1], delt.er2[2,]*2, lty = 1, lwd = 3, col = "red")
 # intervals
-lines(prep.grd[-1],delt.er2[3,]*2, lty = 'dashed', col = 'red')
-lines(prep.grd[-1],delt.er2[1,]*2, lty = 'dashed', col = 'red')
+# lines(prep.grd[-1],delt.er2[3,]*2, lty = 'dashed', col = 'red')
+# lines(prep.grd[-1],delt.er2[1,]*2, lty = 'dashed', col = 'red')
 
 abline(v = c(900-100, 900, 900 + 100), lty = c(2,1,2))
 
+x1 = c(800,1000)
+y1 = c(500,500)
+y2 = c(-100,-100)
+# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+abline(v = c(800, 1000), lty = c(2,2))
+
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col = rgb(0.5,0.5,0.5,0.3), 
+border = NA)		  
+		  
 	  },	  
 		  mar=c(5,0,0,0))
 
@@ -585,7 +604,7 @@ D1 = data.frame(mean = c(mean(x11),mean(x12),mean(x13),mean(x14)),
 	
 
 ylab = 	expression(paste(beta ["temporal"]) ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "/100mm"))
-color1 = c("green", "red")
+color1 = c("blue", "red")
 
 p1 <- ggplot(data=D1, aes(x=region, y=mean, fill=flux)) + 
     geom_bar(colour="black", stat="identity",
