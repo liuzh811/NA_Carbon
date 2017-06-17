@@ -638,13 +638,13 @@ d2 = d2[complete.cases(d2),]
 d2$coef1 = d2$coef1*2		
 library(ggplot2)		
 		
-p2 = ggplot(d2, aes(x=prep, y=coef1*2, color=flux)) + 
+p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) + 
 	# geom_point(shape=1, cex = 3) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) + 
-	coord_cartesian(xlim=c(100, 1500), ylim=c(0, 500))	+ 	 
+	coord_cartesian(xlim=c(100, 1500), ylim=c(0, 250))	+ 	 
     ylab(expression(paste(beta ["Spatial"]))) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
@@ -732,7 +732,7 @@ p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) +
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) +
-    coord_cartesian(xlim=c(100, 1500), ylim=c(0, 200))	+ 	 
+    coord_cartesian(xlim=c(100, 1500), ylim=c(-50, 150))	+ 	 
     ylab(expression(paste(beta ["temporal"]))) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
