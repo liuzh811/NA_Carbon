@@ -57,3 +57,234 @@ p1 + scale_fill_manual(values=color2,
                     labels=levels(D1$flux)) 
 
 ggsave("F:/zhihua/dataset/results2/sensitivity.color.png", width = 8, height = 6, units = "in")
+
+####new figure 2
+#plot together
+d.temporal.ec = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.ec.csv"))[,-1]
+d.spatial.ec = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.ec.csv"))[,-1]
+
+d.temporal.rs = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.rs.csv"))[,-1]
+d.spatial.rs = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.rs.csv"))[,-1]
+
+d.temporal.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.trendy.csv"))[,-1]
+d.spatial.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.trendy.csv"))[,-1]
+
+prep.grd = seq(100,1300, length.out = 25)
+
+png("F:/zhihua/dataset/results2/fig2-3.png",height = 2500, width = 2000, res = 300, units = "px")
+
+par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))
+
+ # plot temporal sensitivity
+# http://htmlcolorcodes.com/
+# par(mar=c(0,0,0,0))
+
+plot(1, type="n", 
+								  ylim = c(-100,100),
+                                  xlim = c(100, 1300),								  
+								  cex = 2, lwd = 4, 
+								  col = "green",
+								  xlab = "Anuual Mean Precipitation (MAP: mm)", 
+								  # ylab = "Spatial sensitivity", 
+								  # ylab = expression(paste(beta ["temporal"])), 
+								  cex.axis = 1.5, 
+								  cex.lab = 1.6,
+								  xaxt='n', ann=FALSE)
+
+abline(h = 0, lty = 2, lwd = 2)		
+								  
+d.temporal.ec = d.temporal.ec[order(d.temporal.ec$prep),]
+mylm = 	lm(mean~prep, data = d.temporal.ec)
+abline(mylm,col="green", lwd = 3)
+
+prd<-predict(mylm,newdata=data.frame(prep = prep.grd),interval = c("confidence"), level = 0.50,type="response") 
+polygon(c(rev(prep.grd), prep.grd), 
+		c(rev(prd[,2]), prd[,3]), 
+        col=rgb(0, 0.5, 0,0.25),
+		border = NA)
+	
+# abline(v = 885, col = "green")
+# abline(v = 885-85, col = "green")
+# abline(v = 885+85, col = "green")
+
+x1 = c(885-85,885+85)
+y1 = c(500,500)
+y2 = c(-500,-500)
+# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+# abline(v = c(650, 700 + 100), lty = c(2,2))
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0.5, 0,0.25), 
+border = NA)
+
+
+# overlay remote sensing	
+d.temporal.rs = d.temporal.rs[order(d.temporal.rs$prep),]
+mylm = 	lm(mean~prep, data = d.temporal.rs)
+abline(mylm,col="blue", lwd = 3)
+
+prd<-predict(mylm,newdata=data.frame(prep = prep.grd),interval = c("confidence"), level = 0.50,type="response") 
+polygon(c(rev(prep.grd), prep.grd), 
+		c(rev(prd[,2]), prd[,3]), 
+        col=rgb(0, 0, 0.5,0.25),
+		border = NA)
+	
+x1 = c(990-90, 990+90)
+y1 = c(500,500)
+y2 = c(-500,-500)	
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0, 0.5,0.25), 
+border = NA)
+
+# overlay trendy	
+d.temporal.trendy = d.temporal.trendy[order(d.temporal.trendy$prep),]
+mylm = 	lm(mean~prep, data = d.temporal.trendy)
+abline(mylm,col=rgb(0, 0, 0,1), lwd = 3)
+
+prd<-predict(mylm,newdata=data.frame(prep = prep.grd),interval = c("confidence"), level = 0.50,type="response") 
+polygon(c(rev(prep.grd), prep.grd), 
+		c(rev(prd[,2]), prd[,3]), 
+        col=rgb(0.5, 0.5, 0.5,0.25),
+		border = NA)
+		
+legend("bottomleft", 
+       # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+	   legend = c("EC", "RS","TRENDY"),
+	   horiz=F,
+	   lwd = 4,
+	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   cex = 1.5,
+	   box.col = "transparent",
+       bg = "transparent")	
+
+legend("topright", 
+       # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+	   legend = c("a)"),
+	   horiz=F,
+	   lwd = 0,
+	   col = rgb(0,0,0,1),
+	   text.col = rgb(0,0,0,1),
+	   cex = 2,
+	   box.col = "transparent",
+       bg = "transparent")	
+
+# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+# abline(v = c(650, 700 + 100), lty = c(2,2))
+
+# polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      # col = rgb(0.5,0.5,0.5,0.3), 
+# border = NA)
+	   
+	   
+	   
+## plot spatial sensitivity
+		
+# par(mar=c(0,5,0,0))
+
+plot(mean~prep, data = d.spatial.ec, type="l", 
+								  ylim = c(-100,100),
+                                  xlim = c(100, 1300),								  
+								  cex = 2, lwd = 4, 
+								  col = "green",
+								  xlab = "Anuual Mean Precipitation (MAP: mm)", 
+								  # ylab = "Spatial sensitivity", 
+								  # ylab = expression(paste(beta ["spatial"])),
+								  ylab = "",
+								  cex.axis = 1.5, cex.lab = 1.6)
+
+polygon(c(rev(d.spatial.ec$prep), d.spatial.ec$prep), 
+		c(rev(d.spatial.ec$mean-d.spatial.ec$sd), d.spatial.ec$mean+d.spatial.ec$sd), 
+        col=rgb(0, 0.5, 0,0.25),
+		border = NA)						  
+								  
+abline(h = 0, lty = 2, lwd = 2)		
+
+x1 = c(750-75,750+60)
+y1 = c(500,500)
+y2 = c(-500,-500)
+# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+# abline(v = c(650, 700 + 100), lty = c(2,2))
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0.5, 0,0.25), 
+border = NA)
+
+
+
+# overlay remote sensing
+par(new=TRUE)
+plot(mean~prep, data = d.spatial.rs, type="l", 
+								  ylim = c(-100,100),
+                                  xlim = c(100, 1300),								  
+								  col="blue",lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+
+polygon(c(rev(d.spatial.rs$prep), d.spatial.rs$prep), 
+		c(rev(d.spatial.rs$mean-d.spatial.rs$sd), d.spatial.rs$mean+d.spatial.rs$sd), 
+ col=rgb(0, 0, 0.5,0.25),
+ border = NA)
+	
+x1 = c(830-70, 830+70)
+y1 = c(500,500)
+y2 = c(-500,-500)	
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0, 0.5,0.25), 
+border = NA)
+
+	
+
+# overlay trendy	
+par(new=TRUE)
+plot(mean~prep, data = d.spatial.trendy, type="l", 
+								  ylim = c(-100,100),
+                                  xlim = c(100, 1300),								  
+								  col=rgb(0,0,0,1),
+								  lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+
+		polygon(c(rev(d.spatial.trendy$prep), d.spatial.trendy$prep), 
+		c(rev(d.spatial.trendy$mean-d.spatial.trendy$sd), d.spatial.trendy$mean+d.spatial.trendy$sd), 
+        col=rgb(0, 0, 0,0.25),
+        border = NA)
+	
+legend("topright", 
+       # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+	   legend = c("b)"),
+	   horiz=F,
+	   lwd = 0,
+	   col = rgb(0,0,0,1),
+	   text.col = rgb(0,0,0,1),
+	   cex = 2,
+	   box.col = "transparent",
+       bg = "transparent")	
+
+
+# x1 = c(650,800)
+# y1 = c(500,500)
+# y2 = c(-500,-500)
+# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+# abline(v = c(650, 700 + 100), lty = c(2,2))
+
+
+# polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      # col = rgb(0.5,0.5,0.5,0.3), 
+# border = NA)
+
+	   
+mtext(side = 1, line = 3, "Mean Anuual Precipitation (MAP: mm)", 
+      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+				
+mtext(side = 2, line = 3, expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "/100mm"), 
+      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+			
+dev.off()		
+		
+		
+
+
