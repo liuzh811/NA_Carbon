@@ -421,6 +421,10 @@ nee.annual = nee.annual*R.grd
 usa.grd.nee = prep.mn
 usa.grd.nee[prep.mn > 750] = 2
 usa.grd.nee[prep.mn < 750] = 1
+
+usa.grd.nee[prep.mn > 900] = 2
+usa.grd.nee[prep.mn < 900] = 1
+
 usa.grd.nee = usa.grd.nee*R.grd
 
 # usa.state = readOGR(dsn="C:\\zhihua\\dataset\\ecoregion", layer = "usa.state")
