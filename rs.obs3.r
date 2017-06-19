@@ -269,6 +269,7 @@ return(x)
 
 pred.er.t = c()
 pred.gpp.t = c()
+delt.temporal = c()
 
 for (i in 1:length(coef.er)){
 
@@ -276,11 +277,14 @@ x1 = coef.er[[i]][,3]
 x1 = Rplc(x1)
 pred.er.t = c(pred.er.t, x1)
 
-x1 = coef.gpp[[i]][,3]
-x1 = Rplc(x1)
-pred.gpp.t = c(pred.gpp.t, x1)
+x2 = coef.gpp[[i]][,3]
+x2 = Rplc(x2)
+pred.gpp.t = c(pred.gpp.t, x2)
+	
+delt.temporal = rbind(delt.temporal, c(x2 - x1))
 }
-					
+	
+
 pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(prep.df.mn[-4], each = 101), flux = "ER")					
 pred.gpp.t2 = data.frame(coef1=pred.gpp.t, prep = rep(prep.df.mn[-4], each = 101), flux = "GPP")					
 
@@ -295,7 +299,7 @@ p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
-                fullrange=FALSE, formula = my.formula) +
+                fullrange=FALSE) +
     coord_cartesian(xlim=c(100, 1500), ylim=c(-50, 150))	+ 	 
     ylab(expression(paste(beta ["temporal"]))) + 
 	xlab("MAP (mm)") + # Set axis labels
@@ -308,33 +312,15 @@ p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) +
     theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
-   
-   lm_eqn <- function(df){
-    m <- lm(coef1 ~ prep, df);
-    eq <- substitute(italic(y) == a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
-         list(a = format(coef(m)[1], digits = 2), 
-              b = format(coef(m)[2], digits = 2), 
-             r2 = format(summary(m)$r.squared, digits = 3)))
-    as.character(as.expression(eq));                 
-}
-				
-p1 + geom_text(x = 800, y = 100, label = lm_eqn(d1), parse = TRUE)			
-				
-# add regression equation
-library(ggpmisc)
-df <- data.frame(x = c(1:100))
-df$y <- 2 + 3 * df$x + rnorm(100, sd = 40)
-my.formula <- coef1 ~ prep
-p <- ggplot(data = df, aes(x = x, y = y)) +
-   geom_smooth(method = "lm", se=FALSE, color="black", formula = my.formula) +
-   stat_poly_eq(formula = my.formula,
-                eq.with.lhs = "italic(hat(y))~`=`~",
-                aes(label = paste(..eq.label.., ..rr.label.., sep = "~~~")), 
-                parse = TRUE) +         
-   geom_point()
-p
-	
-	
+  
+
+# plot spatial sensitivity difference
+delt.temporal = data.frame(prep = dat.df.annual.mean[,c("prep")], mean = 100*apply(delt.temporal, 1, mean, na.rm = TRUE), 
+sd = 100*apply(delt.temporal, 1, sd, na.rm = TRUE)) 
+
+plot(mean~prep, data = delt.temporal, cex = 3)
+abline(lm(mean~prep, data = delt.temporal))
+  	
 #spatial relationship
 dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], nee = nee.df.mn[-4],er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
 
@@ -357,6 +343,9 @@ delt.gpp_2 = as.vector(delt.gpp_1)
 delt.er_1 = apply(delt.er, 1, Rplc)
 delt.er_2 = as.vector(delt.er_1)
 
+prep.grd = prep = seq(100,1300, length.out = 25)
+airtemp.grd = seq(1,25, length.out = 25)
+
 delt.gpp_3 = data.frame(coef1=delt.gpp_2, prep = rep(prep.grd[-1], each = 101), flux = "GPP")		
 delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "ER")		
 d2 = rbind(delt.er_3,delt.gpp_3)
@@ -366,7 +355,7 @@ d2$coef1 = d2$coef1*2
 library(ggplot2)		
 		
 p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) + 
-	# geom_point(shape=1, cex = 3) +
+    geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
@@ -383,6 +372,56 @@ p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) +
     theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
+
+# plot the difference between spatial sensitivity between spatial and temporal
+delt.spatial = delt.gpp_1 - delt.er_1
+delt.spatial = data.frame(prep = prep.grd[-1], mean = 2*apply(delt.spatial, 2, mean, na.rm = TRUE), 
+			  sd = 2*apply(delt.spatial, 2, sd, na.rm = TRUE))
+
+plot(mean~prep, data = delt.spatial, cex = 3)
+
+
+print(p1)
+ggsave("F:/zhihua/dataset/results2/fig2.rs1.png", width = 4, height = 3, units = "in")
+print(p2)
+ggsave("F:/zhihua/dataset/results2/fig2.rs2.png", width = 4, height = 3, units = "in")
+
+
+d3 = rbind(data.frame(d1, doman = "Temporal"),data.frame(d2, doman = "Spatial"))			   
+ggplot(d3, aes(x=prep, y=coef1, color=flux)) + 
+	geom_point(shape=1, cex = 3) +
+	facet_grid(.~doman)
+    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
+    geom_smooth(method=lm,   # Add linear regression lines
+                se=TRUE,    # Don't add shaded confidence region
+                fullrange=FALSE) # Extend regression lines
+
+
+
+write.csv(d3, file = "F:/zhihua/dataset/results2/RS.sensitivity2.csv")
+write.csv(delt.temporal, file = "F:/zhihua/dataset/results2/delt.temporal.rs.csv")
+write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.rs.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
