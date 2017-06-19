@@ -622,7 +622,17 @@ cifun2 <- function(data){
 }
 
 
-####### USE ggplot 2 to map 					
+# before calculating, replace value > 90 percentile and < 10 percentile with NA
+Rplc = function(x){
+p1 = quantile(x, probs = c(0.1,0.9))
+x[which(x < p1[1] | x > p1[2])] = NA
+return(x)
+}
+
+####### USE ggplot 2 to map 
+prep.grd = prep = seq(100,1300, length.out = 25)
+airtemp.grd = seq(1,25, length.out = 25)
+
 # calculate the plot spatial coefficient
 delt.gpp_1 = apply(delt.gpp, 1, Rplc)
 delt.gpp_2 = as.vector(delt.gpp_1)
@@ -639,7 +649,7 @@ d2$coef1 = d2$coef1*2
 library(ggplot2)		
 		
 p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) + 
-	# geom_point(shape=1, cex = 3) +
+	geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
@@ -657,8 +667,12 @@ p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) +
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
 
-	
+# plot the difference between spatial sensitivity between spatial and temporal
+delt.spatial = delt.gpp_1 - delt.er_1
+delt.spatial = data.frame(prep = prep.grd[-1], mean = 2*apply(delt.spatial, 2, mean, na.rm = TRUE), 
+			  sd = 2*apply(delt.spatial, 2, sd, na.rm = TRUE))
 
+plot(mean~prep, data = delt.spatial, cex = 3)
 
 r2s = data.frame(r = c(rmse.er[,4],rmse.gpp[,4]), flux = c(rep("ER", 101),rep("GPP", 101)))
 
@@ -682,16 +696,18 @@ return(x)
 
 pred.er.t = c()
 pred.gpp.t = c()
-
+delt.temporal = c()
 for (i in 1:length(coef.er)){
 
 x1 = coef.er[[i]][,3]
 x1 = Rplc(x1)
 pred.er.t = c(pred.er.t, x1)
 
-x1 = coef.gpp[[i]][,3]
-x1 = Rplc(x1)
-pred.gpp.t = c(pred.gpp.t, x1)
+x2 = coef.gpp[[i]][,3]
+x2 = Rplc(x2)
+pred.gpp.t = c(pred.gpp.t, x2)
+	
+delt.temporal = rbind(delt.temporal, c(x2 - x1))	
 }
 					
 pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(dat.df.annual.mean[,c("prep")], each = 101), flux = "ER")					
@@ -727,7 +743,7 @@ d1$coef1 = d1$coef1*100
 library(ggplot2)		
 		
 p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) + 
-	geom_point(shape=1, cex = 3) +
+	geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
@@ -751,7 +767,12 @@ ggsave("F:/zhihua/dataset/results2/fig2.ec1.png", width = 4, height = 3, units =
 print(p2)
 ggsave("F:/zhihua/dataset/results2/fig2.ec2.png", width = 4, height = 3, units = "in")
 					
-				
+# plot spatial sensitivity difference
+delt.temporal = data.frame(prep = dat.df.annual.mean[,c("prep")], mean = 100*apply(delt.temporal, 1, mean, na.rm = TRUE), 
+			   sd = 100*apply(delt.temporal, 1, sd, na.rm = TRUE)) 
+
+
+
 r1 = c()
 r2 = c()
 
@@ -779,7 +800,13 @@ ggplot(d3, aes(x=prep, y=coef1, color=flux)) +
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) # Extend regression lines
-			   
+
+
+
+write.csv(d3, file = "F:/zhihua/dataset/results2/EC.sensitivity2.csv")
+write.csv(delt.temporal, file = "F:/zhihua/dataset/results2/delt.temporal.ec.csv")
+write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.ec.csv")
+
 ####### END of USE ggplot 2 to map 					
 
 	
