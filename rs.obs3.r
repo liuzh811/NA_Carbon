@@ -295,7 +295,7 @@ d1$coef1 = d1$coef1*100
 library(ggplot2)		
 		
 p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) + 
-	geom_point(shape=1, cex = 5) +
+	geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
     geom_smooth(method=lm,   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
