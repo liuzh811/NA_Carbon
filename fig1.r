@@ -730,5 +730,68 @@ print(p1, vp=viewport(.73, .25, .45, .45)) #viewport, first two is the x,y coor;
 dev.off()
 
 
+###plot 17 EC flux tower on the land cover map
+# classific land cover into forest and non-forest[shrubland, grassland, and crop]
+lc = raster("C:/zhihua/dataset/ecoregion/LCTypeNA.tif")
+#only for US
+lc_us = crop(lc, usa.state)
+# aggregate to 0.05 degree
+lc_us2 = aggregate(lc_us, fact=12, fun=modal, expand=TRUE, na.rm=TRUE)
+m1 = rasterize(usa.state, lc_us2, field = 1)
+lc_us2 = lc_us2*m1
+oldclas <- unique(lc_us2)
+ # oldclas
+ # [1]  0  1  2  4  5  6  7  8  9 10 11 12 13 14 15 16
+# http://www.landcover.org/data/lc/ see IGBP classification
+# oldclas <-     c(0         1      2    4     5    6     7      8      9      10    11   12      13      14   15     16
+oldclas_names <- c("Water","ENF","EBF","DBF","MF","CSH","OSH", "WSA", "SAV", "GRA","WET","CRO", "URBAN", "MOSAIC","Snow and ice", "Rock/Sand/Clay")
+      newclas <- c(1,        2,    3,    3,    4,   5,    5,     5,      5,     6,    7,    8,      9,      8,      10, 11)
+newclas_names <- c("Water","ENF", "DF", "MF", "SHB", "Grass", "Wetland", "Crop", "Urban", "Ice/Snow", "Barren")
+#     newclas <- c(   "1",   "2",   "3",  "4",  "5",    "6",     "7",       "8",     "9",  "10",       "11")
+newclas_color <- c(rgb(0,0,255/255, 1), rgb(0,102/255,0,1),rgb(0,178/255,0,1), rgb(0,178/255,178/255,0),
+		   rgb(178/255,178/255,0,1),rgb(229/255,204/255,153/255,1),rgb(128/255,255/255,204/255,1),
+		   rgb(255/255,179/255,204/255,1), rgb(255/255,0,0,1), rgb(1,1,1,1), rgb(229/255,229/255,204/255,1))
+rclastab.df <- data.frame(oldclas, newclas)
+lc_us2_rc2 = subs(lc_us2, rclastab.df)
+
+library(rgdal)
+flux.info.sp3 <- readOGR("C:/zhihua/dataset/flux2015jul", "flux.info.sp3")
+
+png("F:/zhihua/dataset/results2/land cover with ec site.png",height = 2000, width = 3300, res = 300, units = "px")
+
+plot(lc_us2_rc2, col = newclas_color,
+      legend=FALSE, 
+	 axes=FALSE,
+	 box=FALSE)
+	 
+plot(usa.state, add = T)
+
+legend(x = -75, y = 40, legend = newclas_names, fill = newclas_color, cex = 1, box.lwd = 0,box.col = "transparent",bg = "transparent")
+
+plot(flux.info.sp3[which(flux.info.sp3$IGBP == "DBF" | flux.info.sp3$IGBP == "MF"), ], pch = 21, cex = 2, add = T)
+plot(flux.info.sp3[which(flux.info.sp3$IGBP == "ENF"), ], pch = 22, cex = 2, add = T)
+plot(flux.info.sp3[which(flux.info.sp3$IGBP == "GRA" | flux.info.sp3$IGBP == "CSH" | flux.info.sp3$IGBP == "OSH" 
+                    | flux.info.sp3$IGBP == "SAV" | flux.info.sp3$IGBP == "WSA" | flux.info.sp3$IGBP == "CRO"), ], pch = 23, cex = 2, add = T)
+
+legend("bottomleft", 
+	   # inset=0.05, 
+	   legend = c("DBF/MF (7)","ENF (3)","GRA/Shurb/CRO(6)" ),
+	   horiz=F,
+	   pch = c(21:23),
+	   #col = 1:6,
+	   #text.col = 1:6,
+	   cex = 1,
+	   box.col = "transparent",
+	   bg = "transparent")	 
+
+text()
+
+dev.off()
+
+
+
+
+
+
 
 
