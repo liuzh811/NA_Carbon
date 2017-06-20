@@ -81,7 +81,7 @@ par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))
 
 plot(1, type="n", 
 								  ylim = c(-100,100),
-                                  xlim = c(100, 1300),								  
+                                  				  xlim = c(100, 1300),								  
 								  cex = 2, lwd = 4, 
 								  col = "green",
 								  xlab = "Anuual Mean Precipitation (MAP: mm)", 
@@ -103,7 +103,7 @@ polygon(c(rev(prep.grd), prep.grd),
         col=rgb(0, 0.5, 0,0.25),
 		border = NA)
 	
-# abline(v = 885, col = "green")
+abline(v = 885, col = "green", lwd = 4, lty = 2)
 # abline(v = 885-85, col = "green")
 # abline(v = 885+85, col = "green")
 
@@ -129,9 +129,11 @@ polygon(c(rev(prep.grd), prep.grd),
         col=rgb(0, 0, 0.5,0.25),
 		border = NA)
 	
-x1 = c(990-90, 990+90)
+x1 = c(950-90, 950+90)
 y1 = c(500,500)
 y2 = c(-500,-500)	
+
+abline(v = 950, col = "blue", lwd = 4, lty = 2)
 
 polygon(c(x1, rev(x1)), c(y1, rev(y2)),
       col=rgb(0, 0, 0.5,0.25), 
@@ -160,17 +162,7 @@ legend("bottomleft",
 	   box.col = "transparent",
        bg = "transparent")	
 
-legend("topright", 
-       # inset=0.05, 
-	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
-	   legend = c("a)"),
-	   horiz=F,
-	   lwd = 0,
-	   col = rgb(0,0,0,1),
-	   text.col = rgb(0,0,0,1),
-	   cex = 2,
-	   box.col = "transparent",
-       bg = "transparent")	
+text(x = 100, y = 95, "a)",cex = 2)
 
 # abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
 # abline(v = c(650, 700 + 100), lty = c(2,2))
@@ -178,8 +170,6 @@ legend("topright",
 # polygon(c(x1, rev(x1)), c(y1, rev(y2)),
       # col = rgb(0.5,0.5,0.5,0.3), 
 # border = NA)
-	   
-	   
 	   
 ## plot spatial sensitivity
 		
@@ -206,14 +196,12 @@ abline(h = 0, lty = 2, lwd = 2)
 x1 = c(750-75,750+60)
 y1 = c(500,500)
 y2 = c(-500,-500)
-# abline(v = c(650, 750, 700 + 100), lty = c(2,1,2))
+abline(v = 750, col = "green", lwd = 4,lty = 2)
 # abline(v = c(650, 700 + 100), lty = c(2,2))
 
 polygon(c(x1, rev(x1)), c(y1, rev(y2)),
       col=rgb(0, 0.5, 0,0.25), 
 border = NA)
-
-
 
 # overlay remote sensing
 par(new=TRUE)
@@ -236,7 +224,7 @@ polygon(c(x1, rev(x1)), c(y1, rev(y2)),
       col=rgb(0, 0, 0.5,0.25), 
 border = NA)
 
-	
+abline(v = 830, col = "blue", lwd = 4, lty = 2)	
 
 # overlay trendy	
 par(new=TRUE)
@@ -251,19 +239,8 @@ plot(mean~prep, data = d.spatial.trendy, type="l",
 		c(rev(d.spatial.trendy$mean-d.spatial.trendy$sd), d.spatial.trendy$mean+d.spatial.trendy$sd), 
         col=rgb(0, 0, 0,0.25),
         border = NA)
-	
-legend("topright", 
-       # inset=0.05, 
-	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
-	   legend = c("b)"),
-	   horiz=F,
-	   lwd = 0,
-	   col = rgb(0,0,0,1),
-	   text.col = rgb(0,0,0,1),
-	   cex = 2,
-	   box.col = "transparent",
-       bg = "transparent")	
 
+text(x = 100, y = 95, "b)",cex = 2)
 
 # x1 = c(650,800)
 # y1 = c(500,500)
