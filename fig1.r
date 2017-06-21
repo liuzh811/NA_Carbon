@@ -748,7 +748,7 @@ oldclas_names <- c("Water","ENF","EBF","DBF","MF","CSH","OSH", "WSA", "SAV", "GR
       newclas <- c(1,        2,    3,    3,    4,   5,    5,     5,      5,     6,    7,    8,      9,      8,      10, 11)
 newclas_names <- c("Water","ENF", "DF", "MF", "SHB", "Grass", "Wetland", "Crop", "Urban", "Ice/Snow", "Barren")
 #     newclas <- c(   "1",   "2",   "3",  "4",  "5",    "6",     "7",       "8",     "9",  "10",       "11")
-newclas_color <- c(rgb(0,0,255/255, 1), rgb(0,102/255,0,1),rgb(0,178/255,0,1), rgb(0,178/255,178/255,0),
+newclas_color <- c(rgb(0,0,255/255, 1), rgb(0,102/255,0,1),rgb(0,178/255,0,1), rgb(0,178/255,178/255,1),
 		   rgb(178/255,178/255,0,1),rgb(229/255,204/255,153/255,1),rgb(128/255,255/255,204/255,1),
 		   rgb(255/255,179/255,204/255,1), rgb(255/255,0,0,1), rgb(1,1,1,1), rgb(229/255,229/255,204/255,1))
 rclastab.df <- data.frame(oldclas, newclas)
@@ -773,9 +773,11 @@ plot(flux.info.sp3[which(flux.info.sp3$IGBP == "ENF"), ], pch = 22, cex = 2, add
 plot(flux.info.sp3[which(flux.info.sp3$IGBP == "GRA" | flux.info.sp3$IGBP == "CSH" | flux.info.sp3$IGBP == "OSH" 
                     | flux.info.sp3$IGBP == "SAV" | flux.info.sp3$IGBP == "WSA" | flux.info.sp3$IGBP == "CRO"), ], pch = 23, cex = 2, add = T)
 
+text(x = coordinates(flux.info.sp3)[,1]+1, y = coordinates(flux.info.sp3)[,2]+1, flux.info.sp3$SITE_ID)
+
 legend("bottomleft", 
 	   # inset=0.05, 
-	   legend = c("DBF/MF (7)","ENF (3)","GRA/Shurb/CRO(6)" ),
+	   legend = c("DBF/MF (n = 7)","ENF (n = 3)","GRA/Shurb/CRO (n = 7)" ),
 	   horiz=F,
 	   pch = c(21:23),
 	   #col = 1:6,
