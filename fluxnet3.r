@@ -651,7 +651,7 @@ delt.er_2 = as.vector(delt.er_1)
 
 delt.gpp_3 = data.frame(coef1=delt.gpp_2, prep = rep(prep.grd[-1], each = 101), flux = "GPP")		
 delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "ER")		
-d2 = rbind(delt.gpp_3,delt.er_3)
+d2 = rbind(delt.er_3,delt.gpp_3)
 
 d2 = d2[complete.cases(d2),]
 d2$coef1 = d2$coef1*2		
