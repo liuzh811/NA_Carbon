@@ -267,12 +267,12 @@ dat1 = dat[idx,]
 
 lm11 = lm(gpp~airtemp+prep, data = dat1,na.action=na.exclude)
 
-Coef.df = rbind(Coef.df, c(coef(lm11),summary(lm11)$r.squared))
+Coef.df = rbind(Coef.df, c(coef(lm11),summary(lm11)$r.squared, round(sqrt(mean(resid(lm11)^2)), 2)))
 if(NofSim > n){break}
 }
 
 Coef.df = data.frame(Coef.df)
-colnames(Coef.df) <- c("int","airtemp","prep","r2")
+colnames(Coef.df) <- c("int","airtemp","prep","r2","rmse")
 return(Coef.df)
 
 }								
@@ -334,7 +334,6 @@ reg.abs.mod.gpp[[i]] <- lm1
 reg.rel.mod.gpp[[i]] <- lm2							  
 }
 
-
 ##################  plot to see results ################################################################################
 #plot partial plot [hold airtemp or prep as constant, plot nee response]
 flux.info3 = dat.df.annual.mean[,c("site_id", "igbp")]
@@ -373,6 +372,7 @@ reg.abs.mod.pred1.gpp.list = list()
 reg.abs.mod.pred1.gpp.model.coef = c() #store model coefficients
 delt.gpp = c()
 rmse.gpp = c() #store model efficients, including rmse, mae, aic, r-squired
+delt.gpp.temp = c()
 
 NofSim = 0	
 
@@ -398,17 +398,20 @@ pred2 = predict(lm1, newdata = dat.new2)
 reg.abs.mod.pred1.gpp <- data.frame(airtemp = seq(1,25, length.out = 25), predt = pred1, prep = seq(100,1300, length.out = 25), predp = pred2)
 
 delt.gpp1 = diff(reg.abs.mod.pred1.gpp$predp)
+delt.gpp2 = diff(reg.abs.mod.pred1.gpp$predt)
 
 rmse.gpp = rbind(rmse.gpp, c(rmse, mae,aic,r2))
 reg.abs.mod.pred1.gpp.list[[NofSim]] <- reg.abs.mod.pred1.gpp
 delt.gpp = cbind(delt.gpp, delt.gpp1)
+delt.gpp.temp = cbind(delt.gpp.temp, delt.gpp2)
+
 reg.abs.mod.pred1.gpp.model.coef = rbind(reg.abs.mod.pred1.gpp.model.coef, coef(lm1))
 
 if(NofSim > n){break}
 }
 
 
-return(list(reg.abs.mod.pred1.gpp.list, reg.abs.mod.pred1.gpp.model.coef, delt.gpp, rmse.gpp))
+return(list(reg.abs.mod.pred1.gpp.list, reg.abs.mod.pred1.gpp.model.coef, delt.gpp, rmse.gpp,delt.gpp.temp))
 
 }								
 
@@ -417,6 +420,7 @@ reg.abs.mod.pred1.gpp.list = list.gpp[[1]]
 reg.abs.mod.pred1.gpp.model.coef = list.gpp[[2]]
 delt.gpp = list.gpp[[3]]
 rmse.gpp = list.gpp[[4]]
+delt.gpp.temp = list.gpp[[5]]
 
 ###############################################################################################
 
@@ -446,12 +450,12 @@ dat1 = dat[idx,]
 
 lm11 = lm(er~airtemp+prep, data = dat1,na.action=na.exclude)
 
-Coef.df = rbind(Coef.df, c(coef(lm11),summary(lm11)$r.squared))
+Coef.df = rbind(Coef.df, c(coef(lm11),summary(lm11)$r.squared, round(sqrt(mean(resid(lm11)^2)), 2)))
 if(NofSim > n){break}
 }
 
 Coef.df = data.frame(Coef.df)
-colnames(Coef.df) <- c("int","airtemp","prep","r2")
+colnames(Coef.df) <- c("int","airtemp","prep","r2", "rmse")
 return(Coef.df)
 
 }								
@@ -557,6 +561,8 @@ reg.abs.mod.pred1.gpp.model.coef = c() #store model coefficients
 delt.gpp = c()
 rmse.gpp = c() #store model efficients, including rmse, mae, aic, r-squired
 
+delt.gpp.temp = c()
+
 NofSim = 0	
 
 repeat{
@@ -579,19 +585,21 @@ pred1 = predict(lm1, newdata = dat.new1)
 pred2 = predict(lm1, newdata = dat.new2)
 
 reg.abs.mod.pred1.gpp <- data.frame(airtemp = seq(1,25, length.out = 25), predt = pred1, prep = seq(100,1300, length.out = 25), predp = pred2)
-
 delt.gpp1 = diff(reg.abs.mod.pred1.gpp$predp)
+delt.gpp2 = diff(reg.abs.mod.pred1.gpp$predt)
 
 rmse.gpp = rbind(rmse.gpp, c(rmse, mae,aic,r2))
 reg.abs.mod.pred1.gpp.list[[NofSim]] <- reg.abs.mod.pred1.gpp
 delt.gpp = cbind(delt.gpp, delt.gpp1)
+delt.gpp.temp = cbind(delt.gpp.temp, delt.gpp2)
+
 reg.abs.mod.pred1.gpp.model.coef = rbind(reg.abs.mod.pred1.gpp.model.coef, coef(lm1))
 
 if(NofSim > n){break}
 }
 
 
-return(list(reg.abs.mod.pred1.gpp.list, reg.abs.mod.pred1.gpp.model.coef, delt.gpp, rmse.gpp))
+return(list(reg.abs.mod.pred1.gpp.list, reg.abs.mod.pred1.gpp.model.coef, delt.gpp, rmse.gpp,delt.gpp.temp))
 
 }								
 
@@ -601,6 +609,7 @@ reg.abs.mod.pred1.er.list = list.er[[1]]
 reg.abs.mod.pred1.er.model.coef = list.er[[2]]
 delt.er = list.er[[3]]
 rmse.er = list.er[[4]]
+delt.er.temp = list.er[[5]]
 
 ######################################################################################
 
@@ -612,7 +621,7 @@ cifun <- function(data, ALPHA = 0.05){
     mean(data) + qnorm(1-ALPHA/2) * sd(data)/sqrt(length(data)))
 }
 
-cifun(pred.er[1,], 0.1) 
+# cifun(pred.er[1,], 0.1) 
 
 # define functions to calculate mean +- 1 S.E.
 cifun2 <- function(data){
@@ -715,30 +724,7 @@ pred.gpp.t2 = data.frame(coef1=pred.gpp.t, prep = rep(dat.df.annual.mean[,c("pre
 
 d1 = rbind(pred.er.t2, pred.gpp.t2)	
 d1 = d1[complete.cases(d1),]
-d1$coef1 = d1$coef1*100
-	
-# reclassifiy prep <200, 200-400, 400-600,600-800,800-1000,1000-1200,1200-1400,1400-1600
-# d1$prep[which(d1$prep < 200)] = mean(d1$prep[which(d1$prep < 200)])
-# d1$prep[which( d1$prep > 200 & d1$prep < 400)] = mean(d1$prep[which( d1$prep > 200 & d1$prep < 400)])
-# d1$prep[which( d1$prep > 400 & d1$prep < 600)] = mean(d1$prep[which( d1$prep > 400 & d1$prep < 600)])
-# d1$prep[which( d1$prep > 600 & d1$prep < 800)] = mean(d1$prep[which( d1$prep > 600 & d1$prep < 800)])
-# d1$prep[which( d1$prep > 800 & d1$prep < 1000)] = mean(d1$prep[which( d1$prep > 800 & d1$prep < 1000)])
-# d1$prep[which( d1$prep > 1000 & d1$prep < 1200)] = mean(d1$prep[which( d1$prep > 1000 & d1$prep < 1200)])
-	
-# d1$coef1[which((d1$prep < 200) & (d1$flux == "GPP"))] = mean(d1$coef1[which((d1$prep < 200) & (d1$flux == "GPP"))])
-# d1$coef1[which( (d1$prep > 200 & d1$prep < 400)& (d1$flux == "GPP"))] = mean(d1$coef1[which( (d1$prep > 200 & d1$prep < 400)& (d1$flux == "GPP"))])
-# d1$coef1[which( (d1$prep > 400 & d1$prep < 600)& (d1$flux == "GPP"))] = mean(d1$coef1[which( (d1$prep > 400 & d1$prep < 600)& (d1$flux == "GPP"))])
-# d1$coef1[which( (d1$prep > 600 & d1$prep < 800)& (d1$flux == "GPP"))] = mean(d1$coef1[which( (d1$prep > 600 & d1$prep < 800)& (d1$flux == "GPP"))])
-# d1$coef1[which( (d1$prep > 800 & d1$prep < 1000)& (d1$flux == "GPP"))] = mean(d1$coef1[which( (d1$prep > 800 & d1$prep < 1000)& (d1$flux == "GPP"))])
-# d1$coef1[which( (d1$prep > 1000 & d1$prep < 1200)& (d1$flux == "GPP"))] = mean(d1$coef1[which( (d1$prep > 1000 & d1$prep < 1200)& (d1$flux == "GPP"))])
-
-# d1$coef1[which((d1$prep < 200) & (d1$flux == "ER"))] = mean(d1$coef1[which((d1$prep < 200) & (d1$flux == "ER"))])
-# d1$coef1[which( (d1$prep > 200 & d1$prep < 400)& (d1$flux == "ER"))] = mean(d1$coef1[which( (d1$prep > 200 & d1$prep < 400)& (d1$flux == "ER"))])
-# d1$coef1[which( (d1$prep > 400 & d1$prep < 600)& (d1$flux == "ER"))] = mean(d1$coef1[which( (d1$prep > 400 & d1$prep < 600)& (d1$flux == "ER"))])
-# d1$coef1[which( (d1$prep > 600 & d1$prep < 800)& (d1$flux == "ER"))] = mean(d1$coef1[which( (d1$prep > 600 & d1$prep < 800)& (d1$flux == "ER"))])
-# d1$coef1[which( (d1$prep > 800 & d1$prep < 1000)& (d1$flux == "ER"))] = mean(d1$coef1[which( (d1$prep > 800 & d1$prep < 1000)& (d1$flux == "ER"))])
-# d1$coef1[which( (d1$prep > 1000 & d1$prep < 1200)& (d1$flux == "ER"))] = mean(d1$coef1[which( (d1$prep > 1000 & d1$prep < 1200)& (d1$flux == "ER"))])
-		
+d1$coef1 = d1$coef1*100	
 	
 library(ggplot2)		
 		
@@ -808,6 +794,179 @@ write.csv(delt.temporal, file = "F:/zhihua/dataset/results2/delt.temporal.ec.csv
 write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.ec.csv")
 
 ####### END of USE ggplot 2 to map 					
+
+##plot sensitivity to temperature
+
+####### USE ggplot 2 to map 
+prep.grd = prep = seq(100,1300, length.out = 25)
+airtemp.grd = seq(1,25, length.out = 25)
+
+# calculate the plot spatial coefficient
+delt.gpp_1t = apply(delt.gpp.temp, 1, Rplc)
+delt.gpp_2t = as.vector(delt.gpp_1t)
+
+delt.er_1t = apply(delt.er.temp, 1, Rplc)
+delt.er_2t = as.vector(delt.er_1t)
+
+delt.gpp_3t = data.frame(coef1=delt.gpp_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "GPP")		
+delt.er_3t = data.frame(coef1=delt.er_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "ER")		
+d2t = rbind(delt.gpp_3t,delt.er_3t)
+
+d2t = d2t[complete.cases(d2t),]
+library(ggplot2)		
+		
+p2t = ggplot(d2t, aes(x=prep, y=coef1, color=flux)) + 
+	geom_point(shape=1, cex = 1) +
+    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
+    # geom_smooth(method=lm,   # Add linear regression lines
+                # se=TRUE,    # Don't add shaded confidence region
+                # fullrange=FALSE) + 
+	coord_cartesian(xlim=c(1, 25), ylim=c(-250, 250))	+ 	 
+    ylab(expression(paste(beta ["Spatial"]))) + 
+	xlab("MAP (mm)") + # Set axis labels
+    # ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() + 
+	theme(legend.position=c(.5, .8)) + 	
+	theme(legend.title=element_blank()) +
+	theme(legend.text = element_text(size = 12)) +
+	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+    theme(strip.text.x = element_text(size=12))+
+    theme(strip.text.y = element_text(size=12)) 
+
+# plot the difference between spatial sensitivity between spatial and temporal
+delt.spatial.temp = delt.gpp_1t - delt.er_1t
+delt.spatial.temp = data.frame(prep = airtemp.grd[-1], mean = apply(delt.spatial.temp, 2, mean, na.rm = TRUE), 
+			  sd = apply(delt.spatial.temp, 2, sd, na.rm = TRUE))
+
+plot(mean~prep, data = delt.spatial.temp, cex = 3)
+
+# temporal
+
+pred.er.t.temp = c()
+pred.gpp.t.temp = c()
+delt.temporal.temp = c()
+for (i in 1:length(coef.er)){
+
+x1 = coef.er[[i]][,2]
+x1 = Rplc(x1)
+pred.er.t.temp = c(pred.er.t.temp, x1)
+
+x2 = coef.gpp[[i]][,2]
+x2 = Rplc(x2)
+pred.gpp.t.temp = c(pred.gpp.t.temp, x2)
+	
+delt.temporal.temp = rbind(delt.temporal.temp, c(x2 - x1))	
+}
+					
+pred.er.t2.temp = data.frame(coef1=pred.er.t.temp, prep = rep(dat.df.annual.mean[,c("airtemp")], each = 101), flux = "ER")					
+pred.gpp.t2.temp = data.frame(coef1=pred.gpp.t.temp, prep = rep(dat.df.annual.mean[,c("airtemp")], each = 101), flux = "GPP")					
+
+d1.temp = rbind(pred.er.t2.temp, pred.gpp.t2.temp)	
+d1.temp = d1.temp[complete.cases(d1.temp),]
+	
+library(ggplot2)		
+		
+p1.temp = ggplot(d1.temp, aes(x=prep, y=coef1, color=flux)) + 
+	geom_point(shape=1, cex = 1) +
+    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
+    geom_smooth(method="auto",   # Add linear regression lines
+                se=TRUE,    # Don't add shaded confidence region
+                fullrange=FALSE) +
+    coord_cartesian(xlim=c(1, 25), ylim=c(-50, 150))	+ 	 
+    ylab(expression(paste(beta ["temporal"]))) + 
+	xlab("MAP (mm)") + # Set axis labels
+    # ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() + 
+	theme(legend.position=c(.5, .8)) + 	
+	theme(legend.title=element_blank()) +
+	theme(legend.text = element_text(size = 12)) +
+	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+    theme(strip.text.x = element_text(size=12))+
+    theme(strip.text.y = element_text(size=12)) 
+
+	
+delt.temporal.temp = data.frame(prep = dat.df.annual.mean[,c("airtemp")], mean = apply(delt.temporal.temp, 1, mean, na.rm = TRUE), 
+			   sd = apply(delt.temporal.temp, 1, sd, na.rm = TRUE)) 
+
+
+plot(mean~prep, data = delt.temporal.temp)	
+
+# statistics, temporal
+# x1 = mean(delt.gpp_2t, na.rm = TRUE);x1sd = sd(delt.gpp_2t, na.rm = TRUE)
+# x2 = mean(delt.er_2t, na.rm = TRUE);x2sd = sd(delt.er_2t, na.rm = TRUE)
+
+r1 = c()
+r2 = c()
+r3 = c()
+r4 = c()
+
+r5 = c()
+r6 = c()
+r7 = c()
+r8 = c()
+
+
+for (i in 1:length(coef.er)){
+r1 = c(r1, coef.gpp[[i]][,4]) #r-squired
+r2 = c(r2, coef.er[[i]][,4])
+r3 = c(r3, coef.gpp[[i]][,5]) #rmse
+r4 = c(r4, coef.er[[i]][,5])
+r5 = c(r5, 100*coef.gpp[[i]][,3]) #gpp prep sensitivity
+r6 = c(r6, 100*coef.er[[i]][,3]) #er prep sensitivity
+r7 = c(r7, coef.gpp[[i]][,2]) #gpp temperature sensitivity
+r8 = c(r8, coef.er[[i]][,2]) #er temperature sensitivity
+
+}
+
+x31 = mean(r5, na.rm = TRUE);x31sd = sd(r5, na.rm = TRUE)
+x41 = mean(r6, na.rm = TRUE);x41sd = sd(r6, na.rm = TRUE)
+x51 = mean(r7, na.rm = TRUE);x51sd = sd(r7, na.rm = TRUE)
+x61 = mean(r8, na.rm = TRUE);x61sd = sd(r8, na.rm = TRUE)
+
+x3 = mean(r1, na.rm = TRUE);x3sd = sd(r1, na.rm = TRUE)
+x4 = mean(r2, na.rm = TRUE);x4sd = sd(r2, na.rm = TRUE)
+x5 = mean(r3, na.rm = TRUE);x5sd = sd(r3, na.rm = TRUE)
+x6 = mean(r4, na.rm = TRUE);x6sd = sd(r4, na.rm = TRUE)
+
+
+# statistics, spatial
+x7 = mean(delt.gpp_2, na.rm = TRUE);x7sd = sd(delt.gpp_2, na.rm = TRUE)
+x8 = mean(delt.er_2, na.rm = TRUE);x8sd = sd(delt.er_2, na.rm = TRUE)
+  # r2
+x9 = mean(rmse.gpp[,4]); x9sd = sd(rmse.gpp[,4])
+x10 = mean(rmse.er[,4]); x10sd = sd(rmse.er[,4])
+  #rmse
+x11 = mean(rmse.gpp[,1]); x11sd = sd(rmse.gpp[,1])
+x12 = mean(rmse.er[,1]); x12sd = sd(rmse.er[,1])
+
+mean(delt.gpp)*2; sd(delt.gpp)*2
+mean(delt.er)*2; sd(delt.er)*2
+
+mean(delt.gpp.temp); sd(delt.gpp.temp)
+mean(delt.er.temp); sd(delt.er.temp)
+
+# r-squired
+mean(rmse.gpp[,4]);sd(rmse.gpp[,4])
+mean(rmse.er[,4]);sd(rmse.er[,4])
+
+# rmse
+mean(rmse.gpp[,1]);sd(rmse.gpp[,1])
+mean(rmse.er[,1]);sd(rmse.er[,1])
+
+data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2"),
+           gppmean = c(mean(r5, na.rm = TRUE), mean(r7, na.rm = TRUE), mean(r3, na.rm = TRUE), mean(r1, na.rm = TRUE),
+                       mean(delt.gpp)*2,mean(delt.gpp.temp), mean(rmse.gpp[,1]), mean(rmse.gpp[,4])),
+		   gppsd = c(sd(r5, na.rm = TRUE), sd(r7, na.rm = TRUE), sd(r3, na.rm = TRUE), sd(r1, na.rm = TRUE),
+                       sd(delt.gpp)*2,sd(delt.gpp.temp), sd(rmse.gpp[,1]), sd(rmse.gpp[,4])),
+		   ermean = c(mean(r6, na.rm = TRUE), mean(r8, na.rm = TRUE), mean(r4, na.rm = TRUE), mean(r2, na.rm = TRUE),
+                       mean(delt.er)*2, mean(delt.er.temp), mean(rmse.er[,1]), mean(rmse.er[,4])),
+		   ersd = c(sd(r6, na.rm = TRUE), sd(r8, na.rm = TRUE), sd(r4, na.rm = TRUE), sd(r2, na.rm = TRUE),
+                       sd(delt.er)*2, sd(delt.er.temp), sd(rmse.er[,1]), sd(rmse.er[,4])))
+
+save.image("F:/zhihua/dataset/results/fluxnet3.RData")
+				
 
 	
 ##############################################################################################################
