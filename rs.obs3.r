@@ -166,6 +166,60 @@ gpp.annual = gpp.annual2*mask
 temp = temp*mask
 prep = prep*mask
 
+# plot mean annual nee
+threshold = c(-Inf, -120,1,
+               -120, -80,2,
+               -80,  -50,3,
+               -50,  -20,4,
+		-20,   0,5,
+		0,    20,6,
+                20,   50,7,
+		50,   80,8, 
+		80,   120,9,
+                120,  Inf,10)
+
+#plot using rasterVis
+breaks2_change <- 0:10
+legendbrks2_change <- 1:10 - 0.5
+
+labels = c("<-120","-120- -80","-80- -50","-50- -20","-20- 0", "0 - 20", "20 - 50","50-80","80-120", "> 120") #these are the class names
+color1=c('#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061')
+
+#reclassification
+recls2 = function(x, threshold = threshold){
+#reclassify
+x.list = list()
+for(layer in 1:nlayers(x))
+{
+x2 = x[[layer]]
+x2.rc = reclassify(x2, threshold)
+x.list[[layer]] <- x2.rc
+}
+x.list = stack(x.list)
+return(x.list)
+}
+
+nee.annual.mn = calc(nee.annual, mean)
+
+nee.annual.mn.rc = recls2(nee.annual.mn, threshold)
+
+png("F:/zhihua/dataset/results2/nee.mean.map.png",height = 1500, width = 2500, res = 300, units = "px")
+
+p.strip <- list(cex=1, lines=2, fontface='bold')
+levelplot(nee.annual.mn.rc, main = "Mean Anuall NEE from Atmospheric CO2 Inversion model (2000 - 2014, g C m-2 yr-1)",
+maxpixels = nrow(nee.annual.mn.rc)*ncol(nee.annual.mn.rc),
+at= breaks2_change, margin=FALSE,
+col.regions= color1,
+colorkey= list(labels= list(labels= labels,at= legendbrks2_change, cex = 1.5)),
+scales=list(x=list(cex=1),y=list(cex=1)),
+xlab=list(label = "Longtitude", cex=1),ylab=list(label = "Latitude", cex=1),
+par.strip.text=p.strip) +
+latticeExtra::layer(sp.polygons(usa.state, col = "black", lwd = 1.5))
+
+dev.off()
+
+
+
 # change NEON into grid
 noen.grd = rasterize(neon.sp,mask, field = "DomainID")
 
