@@ -1,3 +1,5 @@
+rm(list = ls())
+
 ## 5/22/2017
 ## using remote sensing and co2 inversion method to calculate the relationship between GPP/ER with precipitation and temperature
 ## using the median/mean NEE estimate from four co2 inversion methods
@@ -123,12 +125,13 @@ x = c(as.numeric(dat1),as.numeric(dat2),as.numeric(dat3))
 
 lm1 = lm(as.numeric(x[1:length(idx)]) ~ as.numeric(x[(length(idx)+1):(length(idx)*2)])+as.numeric(x[(length(idx)*2+1):(length(idx)*3)]))
 lm11 = summary(lm1)
-Coef.df = rbind(Coef.df,  c(coef(lm1), lm11$r.squared))
+Coef.df = rbind(Coef.df, c(coef(lm1), lm11$r.squared, round(sqrt(mean(resid(lm11)^2)), 2)))
+
 if(NofSim > n){break}
 }
 
 Coef.df = data.frame(Coef.df)
-colnames(Coef.df) <- c("int","airtemp","prep","r2")
+colnames(Coef.df) <- c("int","airtemp","prep","r2","rmse")
 return(Coef.df)
 
 }
@@ -241,21 +244,27 @@ print(p1)
 ggsave("F:/zhihua/dataset/results2/fig2.trendy1.png", width = 4, height = 3, units = "in")
 	
 #spatial relationship
-dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], nee = nee.df.mn[-4],er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
+dat.df.annual.mean = data.frame(gpp = gpp.df.mn[-4], er = er.df.mn[-4],airtemp = temp.df.mn[-4],prep = prep.df.mn[-4])
 
 list.gpp = boot.ec2.gpp(dat = dat.df.annual.mean, ln = 13, n = 100)
 reg.abs.mod.pred1.gpp.list = list.gpp[[1]]
 reg.abs.mod.pred1.gpp.model.coef = list.gpp[[2]]
 delt.gpp = list.gpp[[3]]
 rmse.gpp = list.gpp[[4]]
+delt.gpp.temp = list.gpp[[5]]
 
 list.er = boot.ec2.er(dat = dat.df.annual.mean, ln = 13, n = 100)
 reg.abs.mod.pred1.er.list = list.er[[1]]
 reg.abs.mod.pred1.er.model.coef = list.er[[2]]
 delt.er = list.er[[3]]
 rmse.er = list.er[[4]]
+delt.er.temp = list.er[[5]]
 
 # calculate the plot spatial coefficient
+prep.grd = prep = seq(100,1300, length.out = 25)
+airtemp.grd = seq(1,25, length.out = 25)
+
+
 delt.gpp_1 = apply(delt.gpp, 1, Rplc)
 delt.gpp_2 = as.vector(delt.gpp_1)
 
@@ -315,3 +324,88 @@ write.csv(dif.t, file = "F:/zhihua/dataset/results2/delt.temporal.trendy.csv")
 write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.trendy.csv")
 
 
+# statistics, temporal
+# x1 = mean(delt.gpp_2t, na.rm = TRUE);x1sd = sd(delt.gpp_2t, na.rm = TRUE)
+# x2 = mean(delt.er_2t, na.rm = TRUE);x2sd = sd(delt.er_2t, na.rm = TRUE)
+
+r1 = c()
+r2 = c()
+r3 = c()
+r4 = c()
+
+r5 = c()
+r6 = c()
+r7 = c()
+r8 = c()
+
+
+for (i in 1:length(coef.er)){
+r1 = c(r1, coef.gpp[[i]][,4]) #r-squired
+r2 = c(r2, coef.er[[i]][,4])
+r3 = c(r3, coef.gpp[[i]][,5]) #rmse
+r4 = c(r4, coef.er[[i]][,5])
+r5 = c(r5, 100*coef.gpp[[i]][,3]) #gpp prep sensitivity
+r6 = c(r6, 100*coef.er[[i]][,3]) #er prep sensitivity
+r7 = c(r7, coef.gpp[[i]][,2]) #gpp temperature sensitivity
+r8 = c(r8, coef.er[[i]][,2]) #er temperature sensitivity
+
+}
+
+x31 = mean(r5, na.rm = TRUE);x31sd = sd(r5, na.rm = TRUE)
+x41 = mean(r6, na.rm = TRUE);x41sd = sd(r6, na.rm = TRUE)
+x51 = mean(r7, na.rm = TRUE);x51sd = sd(r7, na.rm = TRUE)
+x61 = mean(r8, na.rm = TRUE);x61sd = sd(r8, na.rm = TRUE)
+
+x3 = mean(r1, na.rm = TRUE);x3sd = sd(r1, na.rm = TRUE)
+x4 = mean(r2, na.rm = TRUE);x4sd = sd(r2, na.rm = TRUE)
+x5 = mean(r3, na.rm = TRUE);x5sd = sd(r3, na.rm = TRUE)
+x6 = mean(r4, na.rm = TRUE);x6sd = sd(r4, na.rm = TRUE)
+
+
+# statistics, spatial
+x7 = mean(delt.gpp_2, na.rm = TRUE);x7sd = sd(delt.gpp_2, na.rm = TRUE)
+x8 = mean(delt.er_2, na.rm = TRUE);x8sd = sd(delt.er_2, na.rm = TRUE)
+  # r2
+x9 = mean(rmse.gpp[,4]); x9sd = sd(rmse.gpp[,4])
+x10 = mean(rmse.er[,4]); x10sd = sd(rmse.er[,4])
+  #rmse
+x11 = mean(rmse.gpp[,1]); x11sd = sd(rmse.gpp[,1])
+x12 = mean(rmse.er[,1]); x12sd = sd(rmse.er[,1])
+
+mean(delt.gpp)*2; sd(delt.gpp)*2
+mean(delt.er)*2; sd(delt.er)*2
+
+mean(delt.gpp.temp); sd(delt.gpp.temp)
+mean(delt.er.temp); sd(delt.er.temp)
+
+# r-squired
+mean(rmse.gpp[,4]);sd(rmse.gpp[,4])
+mean(rmse.er[,4]);sd(rmse.er[,4])
+
+# rmse
+mean(rmse.gpp[,1]);sd(rmse.gpp[,1])
+mean(rmse.er[,1]);sd(rmse.er[,1])
+
+data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2"),
+           gppmean = c(mean(r5, na.rm = TRUE), mean(r7, na.rm = TRUE), mean(r3, na.rm = TRUE), mean(r1, na.rm = TRUE),
+                       mean(delt.gpp)*2,mean(delt.gpp.temp), mean(rmse.gpp[,1]), mean(rmse.gpp[,4])),
+		   gppsd = c(sd(r5, na.rm = TRUE), sd(r7, na.rm = TRUE), sd(r3, na.rm = TRUE), sd(r1, na.rm = TRUE),
+                       sd(delt.gpp)*2,sd(delt.gpp.temp), sd(rmse.gpp[,1]), sd(rmse.gpp[,4])),
+		   ermean = c(mean(r6, na.rm = TRUE), mean(r8, na.rm = TRUE), mean(r4, na.rm = TRUE), mean(r2, na.rm = TRUE),
+                       mean(delt.er)*2, mean(delt.er.temp), mean(rmse.er[,1]), mean(rmse.er[,4])),
+		   ersd = c(sd(r6, na.rm = TRUE), sd(r8, na.rm = TRUE), sd(r4, na.rm = TRUE), sd(r2, na.rm = TRUE),
+                       sd(delt.er)*2, sd(delt.er.temp), sd(rmse.er[,1]), sd(rmse.er[,4])))
+
+    name     gppmean       gppsd      ermean        ersd
+1    T.p  45.2701440 31.00044691  27.4067538 18.49194341
+2    T.t   9.3286961 52.30448346  38.8916796 36.38927090
+3 T.rmse  37.1397339 18.09029305  27.3492884 14.52325176
+4   T.r2   0.5216908  0.20405700   0.5209353  0.22354785
+5    S.p 111.6168958 24.13136325 113.5866939 27.28597975
+6    S.t  16.6337353 25.02555875  22.7403048 33.65501057
+7 S.rmse 141.7775248 13.78281832 153.1353465 13.15385932
+8   S.r2   0.9033663  0.02055613   0.8971287  0.02046151
+> 
+				   
+					   
+save.image("F:/zhihua/dataset/results2/trendy.cor2.RData")
