@@ -166,60 +166,6 @@ gpp.annual = gpp.annual2*mask
 temp = temp*mask
 prep = prep*mask
 
-# plot mean annual nee
-threshold = c(-Inf, -120,1,
-               -120, -80,2,
-               -80,  -50,3,
-               -50,  -20,4,
-		-20,   0,5,
-		0,    20,6,
-                20,   50,7,
-		50,   80,8, 
-		80,   120,9,
-                120,  Inf,10)
-
-#plot using rasterVis
-breaks2_change <- 0:10
-legendbrks2_change <- 1:10 - 0.5
-
-labels = c("<-120","-120- -80","-80- -50","-50- -20","-20- 0", "0 - 20", "20 - 50","50-80","80-120", "> 120") #these are the class names
-color1=c('#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061')
-
-#reclassification
-recls2 = function(x, threshold = threshold){
-#reclassify
-x.list = list()
-for(layer in 1:nlayers(x))
-{
-x2 = x[[layer]]
-x2.rc = reclassify(x2, threshold)
-x.list[[layer]] <- x2.rc
-}
-x.list = stack(x.list)
-return(x.list)
-}
-
-nee.annual.mn = calc(nee.annual, mean)
-
-nee.annual.mn.rc = recls2(nee.annual.mn, threshold)
-
-png("F:/zhihua/dataset/results2/nee.mean.map.png",height = 1500, width = 2500, res = 300, units = "px")
-
-p.strip <- list(cex=1, lines=2, fontface='bold')
-levelplot(nee.annual.mn.rc, main = "Mean Anuall NEE from Atmospheric CO2 Inversion model (2000 - 2014, g C m-2 yr-1)",
-maxpixels = nrow(nee.annual.mn.rc)*ncol(nee.annual.mn.rc),
-at= breaks2_change, margin=FALSE,
-col.regions= color1,
-colorkey= list(labels= list(labels= labels,at= legendbrks2_change, cex = 1.5)),
-scales=list(x=list(cex=1),y=list(cex=1)),
-xlab=list(label = "Longtitude", cex=1),ylab=list(label = "Latitude", cex=1),
-par.strip.text=p.strip) +
-latticeExtra::layer(sp.polygons(usa.state, col = "black", lwd = 1.5))
-
-dev.off()
-
-
-
 # change NEON into grid
 noen.grd = rasterize(neon.sp,mask, field = "DomainID")
 
@@ -532,7 +478,156 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
 save.image("F:/zhihua/dataset/results2/rs.obs3.RData")
 
 
+# plot mean annual nee
+threshold = c(-Inf, -120,1,
+               -120, -80,2,
+               -80,  -50,3,
+               -50,  -20,4,
+		-20,   0,5,
+		0,    20,6,
+                20,   50,7,
+		50,   80,8, 
+		80,   120,9,
+                120,  Inf,10)
 
+#plot using rasterVis
+breaks2_change <- 0:10
+legendbrks2_change <- 1:10 - 0.5
+
+labels = c("<-120","-120- -80","-80- -50","-50- -20","-20- 0", "0 - 20", "20 - 50","50-80","80-120", "> 120") #these are the class names
+color1=c('#67001f','#b2182b','#d6604d','#f4a582','#fddbc7','#d1e5f0','#92c5de','#4393c3','#2166ac','#053061')
+
+#reclassification
+recls2 = function(x, threshold = threshold){
+#reclassify
+x.list = list()
+for(layer in 1:nlayers(x))
+{
+x2 = x[[layer]]
+x2.rc = reclassify(x2, threshold)
+x.list[[layer]] <- x2.rc
+}
+x.list = stack(x.list)
+return(x.list)
+}
+
+nee.annual.mn = calc(nee.annual, mean)
+
+nee.annual.mn.rc = recls2(nee.annual.mn, threshold)
+
+png("F:/zhihua/dataset/results2/nee.mean.map.png",height = 1500, width = 2500, res = 300, units = "px")
+
+p.strip <- list(cex=1, lines=2, fontface='bold')
+levelplot(nee.annual.mn.rc, main = "Mean Anuall NEE from Atmospheric CO2 Inversion model (2000 - 2014, g C m-2 yr-1)",
+maxpixels = nrow(nee.annual.mn.rc)*ncol(nee.annual.mn.rc),
+at= breaks2_change, margin=FALSE,
+col.regions= color1,
+colorkey= list(labels= list(labels= labels,at= legendbrks2_change, cex = 1.5)),
+scales=list(x=list(cex=1),y=list(cex=1)),
+xlab=list(label = "Longtitude", cex=1),ylab=list(label = "Latitude", cex=1),
+par.strip.text=p.strip) +
+latticeExtra::layer(sp.polygons(usa.state, col = "black", lwd = 1.5))
+
+dev.off()
+
+##plot distrubution of GPP and NEE along the precipitation
+
+# read into modis 17 gpp
+gpp.annual = stack("C:/zhihua/dataset/mod17a2/processed/c.gpp.annual.grd")
+gpp.annual2 = list()
+
+for(i in 1:15){
+t1 = aggregate(gpp.annual[[i]], fact=10, fun=mean, expand=TRUE, na.rm=TRUE)
+gpp.annual2[[i]] <- t1
+}
+gpp.annual2 = stack(gpp.annual2)
+
+gpp.annual = crop(gpp.annual2, usa.state)
+
+mask.gpp = rasterize(usa.state, gpp.annual)
+mask.gpp = mask.gpp > 0
+mask.gpp[mask.gpp == 0] = NA
+gpp.annual = gpp.annual*mask.gpp
+
+gpp.annual.mn = calc(gpp.annual, mean)
+nee.annual.mn = calc(nee.annual, mean)
+prep.mn = calc(prep, mean)
+
+pts.sp = Ex.pts.all(gpp.annual.mn)
+
+gpp.annual.mn = focal(gpp.annual.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
+nee.annual.mn = focal(nee.annual.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
+prep.mn = focal(prep.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
+
+dat1.mn = rbind(data.frame(value = raster::extract(gpp.annual.mn, pts.sp), Var = "GPP", PREP = raster::extract(prep.mn, pts.sp)),
+		  data.frame(value = raster::extract(nee.annual.mn, pts.sp), Var = "NEE", PREP = raster::extract(prep.mn, pts.sp)))
+
+dat1.mn = dat1.mn[-which(is.na(dat1.mn$value) | dat1.mn$PREP == 0), ]
+dat1.mn = dat1.mn[complete.cases(dat1.mn),]
+
+myPalette <- colorRampPalette(brewer.pal(11, "RdYlBu"))
+sc <- scale_colour_gradientn(colours = myPalette(100), limits=c(-250,250))
+
+ggplot(dat1.mn, aes(x=value, fill=Var)) +
+    geom_histogram(binwidth=50, alpha=.5, position="identity")
+
+ggplot(dat1.mn[which(dat1.mn$Var == "GPP"),], aes(PREP,value, z = value)) + 
+stat_summary2d(fun = mean) +
+# stat_summary_hex(fun = mean, bins = 30, alpha = 1) + # default bins = 30
+# facet_wrap( ~Var, scales="free_y") +
+#  scale_colour_gradientn(colours=rainbow(7))
+scale_fill_gradientn(colours = c("blue","white", "red"))	 +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("GPP-MAP")
+				
+ggplot(dat1.mn[which(dat1.mn$Var == "NEE"),], aes(PREP,value, z = value)) + 
+# stat_summary2d(fun = mean) +
+stat_summary_hex(fun = mean, bins = 30, alpha = 1) + # default bins = 30
+# facet_wrap( ~Var, scales="free_y") +
+#  scale_colour_gradientn(colours=rainbow(7))
+scale_fill_gradientn(colours = c("blue","white", "red"))	 +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("NEE-MAP")
+
+sc1 <- scale_colour_gradientn(colours = myPalette(100), limits=c(0,1500))
+p1 = ggplot(dat1.mn[which(dat1.mn$Var == "GPP"),], aes(x=PREP, y=value, colour = value)) + geom_point(size = 3) + 
+    scale_x_continuous(limits = c(0, 1500)) + 
+	scale_y_continuous(limits = c(0, 2500)) + 
+    # facet_wrap( ~variable, scales="free_y" ) + 
+    # geom_vline(xintercept = 0) + geom_hline(yintercept = 0) + 
+	scale_colour_gradientn(colours=rainbow(7)) + 
+	# sc1+
+  theme(legend.text = element_text(size = 18))+
+  theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+  theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
+  theme(legend.title=element_blank()) + 
+  theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
+  xlab("Mean Annual Precipation (mm)") + ylab("GPP (g C m-2 yr-1)") +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("GPP-MAP scatterplot")
+
+p1
+ggsave("F:/zhihua/dataset/results2/gpp.distribution.png", width = 7.5, height = 3.75, units = "in")
+	
+sc2 <- scale_colour_gradientn(colours = myPalette(100), limits=c(-250,250))
+p2 = ggplot(dat1.mn[which(dat1.mn$Var == "NEE"),], aes(x=PREP, y=value, colour = value)) + geom_point(size = 3) + 
+    scale_x_continuous(limits = c(0, 1500)) + 
+	scale_y_continuous(limits = c(-100, 250)) + 
+    # facet_wrap( ~variable, scales="free_y" ) + 
+    # geom_vline(xintercept = 0) + geom_hline(yintercept = 0) + 
+	scale_colour_gradientn(colours=rainbow(7)) + 
+	# sc2+
+  theme(legend.text = element_text(size = 18))+
+  theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+  theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
+   theme(legend.title=element_blank()) + 
+  theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
+  xlab("Mean Annual Precipation (mm)") + ylab("NEE (g C m-2 yr-1)") +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("NEE-MAP scatterplot") 
+	
+p2
+ggsave("F:/zhihua/dataset/results2/nee.distribution.png", width = 7.5, height = 3.75, units = "in")
 
 
 
