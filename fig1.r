@@ -566,7 +566,9 @@ D1 = data.frame(mean.r = c(mean(r1$r), mean(r2$r),mean(r3$r),mean(r4$r),mean(r5$
 D1$sym = c("**", "","","","***","","*","")
 # write.csv(D1, "F:/zhihua/dataset/results2/corr.csv")
 # D1 = read.csv("F:/zhihua/dataset/results2/corr.csv")
-	
+levels(D1$method) <- c("Constrained Global Obs", "TRENDY")
+
+
 color1 = c("grey20", "grey90")
 ylab=expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " Per 100 mm")
 
@@ -639,7 +641,7 @@ plot(R, zlim=c(-1,1),col = my.colors(100),
 		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
         smallplot=c(0.8,0.85, 0.2,0.45))
 	 par(mar = par("mar"))
-
+text(x = -123, y = 51, "a)", cex = 2)
 
 # plot mean r from trendy model
 
@@ -661,6 +663,9 @@ P2[P.trendy1 > 5] = 0.05
 pts.sp.sig2 = Ex.pts(P2, sig.level = 0.1) #extract significant relation points
 
 plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+
+text(x = -123, y = 51, "b)", cex = 2)
+
 
 #######plot r response to prep
 par(mar=c(3,3,0,3)+2)
@@ -709,7 +714,7 @@ polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep),
 legend("topleft", 
 	   # inset=0.05, 
 	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
-	   legend = c("RS","TRENDY"),
+	   legend = c("Constrained Global Obs","TRENDY"),
 	   horiz=F,
 	   lwd = 4,
 	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1)),
@@ -718,7 +723,8 @@ legend("topleft",
 	   box.col = "transparent",
 	   bg = "transparent")
 
-										  
+# text(x = 100, y = 100, "c)", cex = 2)
+									  
 axis(side = 4,cex = 1.2)
 mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),cex = 1.3, col = rgb(0.5, 0.5, 0.5,1))
 
@@ -726,6 +732,8 @@ mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),ce
 require(grid)
 par(new=TRUE)
 print(p1, vp=viewport(.73, .25, .45, .45)) #viewport, first two is the x,y coor; last 2 is the inset size
+
+text(x = 0.5, y = 0.5, "c)", cex = 2)
 
 dev.off()
 
