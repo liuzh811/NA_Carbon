@@ -477,7 +477,7 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
 
 save.image("F:/zhihua/dataset/results2/rs.obs3.RData")
 
-
+load("F:/zhihua/dataset/results2/rs.obs3.RData") 
 # plot mean annual nee
 threshold = c(-Inf, -120,1,
                -120, -80,2,
@@ -549,15 +549,102 @@ mask.gpp = mask.gpp > 0
 mask.gpp[mask.gpp == 0] = NA
 gpp.annual = gpp.annual*mask.gpp
 
+# for annual temperature and precipitations
+temp = list()
+prep = list()
+
+for (yr in 2000:2014){
+temp1 = stack(paste0("F:/zhihua/dataset/cru_ts3.23/temp.", yr, ".grd"))
+temp1 = crop(temp1, na.ext)
+temp1 = calc(temp1, mean, na.rm = TRUE)
+
+prep1 = stack(paste0("F:/zhihua/dataset/cru_ts3.23/prep", yr, ".grd"))
+prep1 = crop(prep1, na.ext)
+prep1 = calc(prep1, sum, na.rm = TRUE)
+
+temp[[yr - 1999]] <- temp1
+prep[[yr - 1999]] <- prep1
+
+}
+
+temp = stack(temp)
+prep = stack(prep)
+
+# create mask to crop data
+temp1 = crop(temp[[1]], usa.state)
+mask = rasterize(usa.state, temp1)
+
+mask = mask > 0
+mask[mask == 0] = NA
+temp = temp*mask
+prep = prep*mask
+
 gpp.annual.mn = calc(gpp.annual, mean)
 nee.annual.mn = calc(nee.annual, mean)
 prep.mn = calc(prep, mean)
+temp.mn = calc(temp, mean)
 
 pts.sp = Ex.pts.all(gpp.annual.mn)
 
 gpp.annual.mn = focal(gpp.annual.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
 nee.annual.mn = focal(nee.annual.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
 prep.mn = focal(prep.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
+temp.mn = focal(temp.mn, w=matrix(1/9,nrow=3,ncol=3), na.rm = TRUE)
+
+# hexbin plot
+dat11 = data.frame(gpp = raster::extract(gpp.annual.mn, pts.sp), t = raster::extract(temp.mn, pts.sp),p = raster::extract(prep.mn, pts.sp))
+dat11 = dat11[complete.cases(dat11),]
+dat11 = subset(dat11, p > 0)
+library(ggplot2)
+library(hexbin)
+library(RColorBrewer)
+
+ggplot(data = dat11,
+            aes(x = p,
+                y = t,
+                z = gpp)) +
+       stat_summary_hex(bins = 20, fun = "mean") +
+       scale_y_continuous(lim = c(-2, 25)) + 
+       scale_x_continuous(lim = c(0, 1600)) + 
+  scale_fill_gradientn(colours=c('red','yellow','blue'),name='GPP') + 
+  # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
+  # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
+  theme(legend.text = element_text(size = 18))+
+  theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+  theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
+  # theme(legend.title=element_blank()) + 
+  # theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
+  ylab("Mean Annual Precipation (mm)") + xlab("Temperature (degree)") +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("Climatic Space for GPP")
+
+ggsave("F:/zhihua/dataset/results2/gpp.climate.png", width = 6, height = 4.5, units = "in")
+
+dat12 = data.frame(nee = raster::extract(nee.annual.mn, pts.sp), t = raster::extract(temp.mn, pts.sp),p = raster::extract(prep.mn, pts.sp))
+dat12 = dat12[complete.cases(dat12),]
+dat12 = subset(dat12, p > 0)
+
+ggplot(data = dat12,
+            aes(x = p,
+                y = t,
+                z = nee)) +
+       stat_summary_hex(bins = 20, fun = "mean") +
+       scale_y_continuous(lim = c(-2, 25)) + 
+       scale_x_continuous(lim = c(0, 1600)) + 
+  scale_fill_gradientn(colours=c('red','yellow','blue'),name='NEE') + 
+  # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
+  # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
+  theme(legend.text = element_text(size = 18))+
+  theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+  theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
+  # theme(legend.title=element_blank()) + 
+  # theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
+  ylab("Mean Annual Precipation (mm)") + xlab("Temperature (degree)") +
+  theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
+    ggtitle("Climatic Space for NEE")
+
+ggsave("F:/zhihua/dataset/results2/nee.climate.png", width = 6, height = 4.5, units = "in")
+
 
 dat1.mn = rbind(data.frame(value = raster::extract(gpp.annual.mn, pts.sp), Var = "GPP", PREP = raster::extract(prep.mn, pts.sp)),
 		  data.frame(value = raster::extract(nee.annual.mn, pts.sp), Var = "NEE", PREP = raster::extract(prep.mn, pts.sp)))
