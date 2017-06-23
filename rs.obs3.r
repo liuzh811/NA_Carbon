@@ -606,7 +606,8 @@ ggplot(data = dat11,
        stat_summary_hex(bins = 20, fun = "mean") +
        scale_y_continuous(lim = c(-2, 25)) + 
        scale_x_continuous(lim = c(0, 1600)) + 
-  scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
+  # scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
+  scale_fill_gradientn(colours=c('brown','yellow','green'),name='gC m-2yr-1') + 
   # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
   # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
   theme(legend.text = element_text(size = 18))+
@@ -631,7 +632,8 @@ ggplot(data = dat12,
        stat_summary_hex(bins = 20, fun = "mean") +
        scale_y_continuous(lim = c(-2, 25)) + 
        scale_x_continuous(lim = c(0, 1600)) + 
-  scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
+  # scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
+  scale_fill_gradientn(colours=c('brown','yellow','green'),name='gC m-2yr-1') + 
   # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
   # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
   theme(legend.text = element_text(size = 18))+
