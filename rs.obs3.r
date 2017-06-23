@@ -606,7 +606,7 @@ ggplot(data = dat11,
        stat_summary_hex(bins = 20, fun = "mean") +
        scale_y_continuous(lim = c(-2, 25)) + 
        scale_x_continuous(lim = c(0, 1600)) + 
-  scale_fill_gradientn(colours=c('red','yellow','blue'),name='GPP') + 
+  scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
   # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
   # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
   theme(legend.text = element_text(size = 18))+
@@ -614,7 +614,7 @@ ggplot(data = dat11,
   theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
   # theme(legend.title=element_blank()) + 
   # theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
-  ylab("Mean Annual Precipation (mm)") + xlab("Temperature (degree)") +
+  xlab("Mean Annual Precipation (mm)") + ylab("Mean Annual Temperature (degree)") +
   theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
     ggtitle("Climatic Space for GPP")
 
@@ -631,7 +631,7 @@ ggplot(data = dat12,
        stat_summary_hex(bins = 20, fun = "mean") +
        scale_y_continuous(lim = c(-2, 25)) + 
        scale_x_continuous(lim = c(0, 1600)) + 
-  scale_fill_gradientn(colours=c('red','yellow','blue'),name='NEE') + 
+  scale_fill_gradientn(colours=c('red','yellow','blue'),name='gC m-2yr-1') + 
   # scale_fill_gradientn(colours=c('#f7fcb9','#addd8e','#31a354'),name='GPP') + 
   # scale_fill_gradientn(colours=c('#fc8d59','#ffffbf','#91bfdb'),name='GPP') + 
   theme(legend.text = element_text(size = 18))+
@@ -639,7 +639,7 @@ ggplot(data = dat12,
   theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
   # theme(legend.title=element_blank()) + 
   # theme(legend.justification=c(1,0), legend.position=c(1,0)) + 
-  ylab("Mean Annual Precipation (mm)") + xlab("Temperature (degree)") +
+  xlab("Mean Annual Precipation (mm)") + ylab("Mean Annual Temperature (degree)") +
   theme(strip.text.x = element_text(size=18), strip.text.y = element_text(size=18))+
     ggtitle("Climatic Space for NEE")
 
