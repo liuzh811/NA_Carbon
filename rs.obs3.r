@@ -478,6 +478,48 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
 save.image("F:/zhihua/dataset/results2/rs.obs3.RData")
 
 load("F:/zhihua/dataset/results2/rs.obs3.RData") 
+# calculate GPP/NEE correlation
+pts.sp3 = Ex.pts.all(nee.annual[[1]]) #get the point locations
+
+df1 = raster::extract(gpp.annual, pts.sp3)
+df2= raster::extract(nee.annual, pts.sp3)
+df = data.frame(df1, df2)
+
+#calculate the relationship
+corr = apply(df, 1, cor.test1) 
+                         
+# change to raster
+r1 = Point2raster(corr[1,], raster = nee.annual[[1]])
+p1 = Point2raster(corr[2,], raster = nee.annual[[1]])
+
+my.colors = colorRampPalette(c("#053061", "#f7f7f7", "#67001f"))
+my.colors = colorRampPalette(c("blue", "white", "red"))
+
+plot(r1, zlim=c(-1,1),col = my.colors(100), 
+					main = "r Between GPP and NEE",
+					# legend=FALSE,
+                    			# axes=FALSE,
+                    			# box=FALSE
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1.5, add = TRUE)
+pts.sp.sig1 = Ex.pts(p1, sig.level = 0.1) #extract significant relation points
+plot(pts.sp.sig1, add = TRUE, cex = 0.1)
+					
+# calculate covariance
+cov1 = function(x){
+n = length(x)
+x1 = x[c(1:(n/2))]
+x2 = x[c((n/2 + 1):n)]
+return(cov(x1,x2))	
+}
+covr = apply(df, 1, cov1); covr1 = Point2raster(covr, raster = nee.annual[[1]])
+sd1 = apply(df1, 1, sd); sdr1 = Point2raster(sd1, raster = nee.annual[[1]])
+sd2 = apply(df2, 1, sd); sdr2 = Point2raster(sd2, raster = nee.annual[[1]])
+
+
 # plot mean annual nee
 threshold = c(-Inf, -120,1,
                -120, -80,2,
