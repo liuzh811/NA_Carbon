@@ -265,4 +265,143 @@ dev.off()
 		
 		
 
+####new figure 2-- for temperature
+#plot together
+d.temporal.ec = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.ec.temp.csv"))[,-1]
+d.spatial.ec = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.ec.temp.csv"))[,-1]
+
+d.temporal.rs = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.rs.temp.csv"))[,-1]
+d.spatial.rs = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.rs.temp.csv"))[,-1]
+
+d.temporal.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/delt.temporal.trendy.temp.csv"))[,-1]
+d.spatial.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.trendy.temp.csv"))[,-1]
+
+prep.grd = seq(1,25, length.out = 25)
+
+png("F:/zhihua/dataset/results2/fig2-3-temperature.png",height = 2500, width = 2000, res = 300, units = "px")
+
+par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))
+
+ # plot temporal sensitivity
+# http://htmlcolorcodes.com/
+# par(mar=c(0,0,0,0))
+
+plot(1, type="n", 
+								  ylim = c(-100,100),
+                                  xlim = c(1, 25),	
+                                  # xlim = c(100, 1300),								  
+								  cex = 2, lwd = 4, 
+								  col = "green",
+								  xlab = "Anuual Mean Precipitation (MAP: mm)", 
+								  # ylab = "Spatial sensitivity", 
+								  # ylab = expression(paste(beta ["temporal"])), 
+								  cex.axis = 1.5, 
+								  cex.lab = 1.6,
+								  xaxt='n', ann=FALSE)
+
+abline(h = 0, lty = 2, lwd = 2)		
+
+points(x = d.temporal.ec$prep, y = d.temporal.ec$mean, pch = 0, cex = 2,col="green")
+points(x = d.temporal.rs$prep, y = d.temporal.rs$mean, pch = 1, cex = 2,col="blue")
+points(x = d.temporal.trendy$prep, y = d.temporal.trendy$mean, pch = 2, cex = 2,col="black")
+		
+
+text(x = 1.5, y = 95, "a)",cex = 2)
+
+## plot spatial sensitivity
+		
+plot(mean~prep, data = d.spatial.ec, type="l", 
+								  ylim = c(-200,200),
+                                  xlim = c(1, 25),								  
+								  cex = 2, lwd = 4, 
+								  col = "green",
+								  xlab = "Anuual Mean Temperature (degree)", 
+								  # ylab = "Spatial sensitivity", 
+								  # ylab = expression(paste(beta ["spatial"])),
+								  ylab = "",
+								  cex.axis = 1.5, cex.lab = 1.6)
+
+polygon(c(rev(d.spatial.ec$prep), d.spatial.ec$prep), 
+		c(rev(d.spatial.ec$mean-d.spatial.ec$sd), d.spatial.ec$mean+d.spatial.ec$sd), 
+        col=rgb(0, 0.5, 0,0.25),
+		border = NA)						  
+								  
+abline(h = 0, lty = 2, lwd = 2)		
+
+x1 = c(750-75,750+60)
+y1 = c(500,500)
+y2 = c(-500,-500)
+abline(v = 750, col = "green", lwd = 4,lty = 2)
+# abline(v = c(650, 700 + 100), lty = c(2,2))
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0.5, 0,0.25), 
+border = NA)
+
+# overlay remote sensing
+par(new=TRUE)
+plot(mean~prep, data = d.spatial.rs, type="l", 
+								  ylim = c(-200,200),
+                                  xlim = c(1, 25),								  
+								  col="blue",lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+
+polygon(c(rev(d.spatial.rs$prep), d.spatial.rs$prep), 
+		c(rev(d.spatial.rs$mean-d.spatial.rs$sd), d.spatial.rs$mean+d.spatial.rs$sd), 
+ col=rgb(0, 0, 0.5,0.25),
+ border = NA)
+	
+x1 = c(830-70, 830+70)
+y1 = c(500,500)
+y2 = c(-500,-500)	
+
+polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      col=rgb(0, 0, 0.5,0.25), 
+border = NA)
+
+abline(v = 830, col = "blue", lwd = 4, lty = 2)	
+
+# overlay trendy	
+par(new=TRUE)
+plot(mean~prep, data = d.spatial.trendy, type="l", 
+								  ylim = c(-200,200),
+                                  xlim = c(1, 25),								  
+								  col=rgb(0,0,0,1),
+								  lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+
+		polygon(c(rev(d.spatial.trendy$prep), d.spatial.trendy$prep), 
+		c(rev(d.spatial.trendy$mean-d.spatial.trendy$sd), d.spatial.trendy$mean+d.spatial.trendy$sd), 
+        col=rgb(0, 0, 0,0.25),
+        border = NA)
+
+text(x = 1.5, y = 195, "b)",cex = 2)
+
+legend("bottomleft", 
+       # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+#	   legend = c("EC", "RS","TRENDY"),
+       	   legend = c("Constrained EC obs", "Constrained Global Obs","TRENDY"),
+	   horiz=F,
+	   pch = 0:2,
+	   lwd = 4,
+	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   cex = 1.5,
+	   box.col = "transparent",
+       bg = "transparent")	
+
+# polygon(c(x1, rev(x1)), c(y1, rev(y2)),
+      # col = rgb(0.5,0.5,0.5,0.3), 
+# border = NA)
+
+	   
+mtext(side = 1, line = 3, "Anuual Mean Temperature (degree)", 
+      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+				
+mtext(side = 2, line = 3, expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " per degree"), 
+      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+			
+dev.off()		
+		
 
