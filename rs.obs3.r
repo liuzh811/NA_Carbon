@@ -403,6 +403,115 @@ write.csv(d3, file = "F:/zhihua/dataset/results2/RS.sensitivity2.csv")
 write.csv(delt.temporal, file = "F:/zhihua/dataset/results2/delt.temporal.rs.csv")
 write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.rs.csv")
 
+##plot sensitivity to temperature
+####### USE ggplot2 to map 
+prep.grd = prep = seq(100,1300, length.out = 25)
+airtemp.grd = seq(1,25, length.out = 25)
+
+# calculate the plot spatial coefficient
+delt.gpp_1t = apply(delt.gpp.temp, 1, Rplc)
+delt.gpp_2t = as.vector(delt.gpp_1t)
+
+delt.er_1t = apply(delt.er.temp, 1, Rplc)
+delt.er_2t = as.vector(delt.er_1t)
+
+delt.gpp_3t = data.frame(coef1=delt.gpp_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "GPP")		
+delt.er_3t = data.frame(coef1=delt.er_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "ER")		
+d2t = rbind(delt.er_3t, delt.gpp_3t)
+
+d2t = d2t[complete.cases(d2t),]
+library(ggplot2)		
+		
+p2t = ggplot(d2t, aes(x=prep, y=coef1, color=flux)) + 
+	geom_point(shape=1, cex = 1) +
+    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
+    geom_smooth(method=lm,   # Add linear regression lines
+                se=TRUE,    # Don't add shaded confidence region
+                fullrange=FALSE) + 
+	coord_cartesian(xlim=c(1, 25), ylim=c(-250, 250))	+ 	 
+    ylab(expression(paste(beta ["Spatial"]))) + 
+	xlab("Temperature (degree)") + # Set axis labels
+    # ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() + 
+	theme(legend.position=c(.5, .8)) + 	
+	theme(legend.title=element_blank()) +
+	theme(legend.text = element_text(size = 12)) +
+	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+    theme(strip.text.x = element_text(size=12))+
+    theme(strip.text.y = element_text(size=12)) 
+
+# plot the difference between spatial sensitivity between spatial and temporal
+delt.spatial.temp = delt.gpp_1t - delt.er_1t
+delt.spatial.temp = data.frame(prep = airtemp.grd[-1], mean = apply(delt.spatial.temp, 2, mean, na.rm = TRUE), 
+			  sd = apply(delt.spatial.temp, 2, sd, na.rm = TRUE))
+
+plot(mean~prep, data = delt.spatial.temp, cex = 3)
+
+# temporal
+
+pred.er.t.temp = c()
+pred.gpp.t.temp = c()
+delt.temporal.temp = c()
+for (i in 1:length(coef.er)){
+
+x1 = coef.er[[i]][,2]
+x1 = Rplc(x1)
+pred.er.t.temp = c(pred.er.t.temp, x1)
+
+x2 = coef.gpp[[i]][,2]
+x2 = Rplc(x2)
+pred.gpp.t.temp = c(pred.gpp.t.temp, x2)
+	
+delt.temporal.temp = rbind(delt.temporal.temp, c(x2 - x1))	
+}
+					
+pred.er.t2.temp = data.frame(coef1=pred.er.t.temp, prep = rep(dat.df.annual.mean[,c("airtemp")], each = 101), flux = "ER")					
+pred.gpp.t2.temp = data.frame(coef1=pred.gpp.t.temp, prep = rep(dat.df.annual.mean[,c("airtemp")], each = 101), flux = "GPP")					
+
+d1.temp = rbind(pred.er.t2.temp, pred.gpp.t2.temp)	
+d1.temp = d1.temp[complete.cases(d1.temp),]
+	
+library(ggplot2)		
+		
+p1.temp = ggplot(d1.temp, aes(x=prep, y=coef1, color=flux)) + 
+	geom_point(shape=1, cex = 1) +
+    scale_colour_hue(l=50) + # Use a slightly darker palette than normal
+    geom_smooth(method="lm",   # Add linear regression lines
+                se=TRUE,    # Don't add shaded confidence region
+                fullrange=FALSE) +
+    coord_cartesian(xlim=c(1, 25), ylim=c(-50, 150))	+ 	 
+    ylab(expression(paste(beta ["temporal"]))) + 
+	xlab("Temperature (degree)") + # Set axis labels
+    # ggtitle("Average bill for 2 people") +     # Set title
+    theme_bw() + 
+	theme(legend.position=c(.5, .8)) + 	
+	theme(legend.title=element_blank()) +
+	theme(legend.text = element_text(size = 12)) +
+	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+    theme(strip.text.x = element_text(size=12))+
+    theme(strip.text.y = element_text(size=12)) 
+
+	
+delt.temporal.temp = data.frame(prep = dat.df.annual.mean[,c("airtemp")], mean = apply(delt.temporal.temp, 1, mean, na.rm = TRUE), 
+			   sd = apply(delt.temporal.temp, 1, sd, na.rm = TRUE)) 
+
+
+plot(mean~prep, data = delt.temporal.temp)	
+
+d3t1 = rbind(data.frame(d1.temp, doman = "Temporal"),data.frame(d2t, doman = "Spatial"))			   
+
+write.csv(d3t1, file = "F:/zhihua/dataset/results2/RS.sensitivity2.temp.csv")
+write.csv(delt.temporal.temp, file = "F:/zhihua/dataset/results2/delt.temporal.rs.temp.csv")
+write.csv(delt.spatial.temp, file = "F:/zhihua/dataset/results2/delt.spatial.rs.temp.csv")
+
+print(p1.temp)
+ggsave("F:/zhihua/dataset/results2/fig2.rs1.temp.png", width = 4, height = 3, units = "in")
+print(p2t)
+ggsave("F:/zhihua/dataset/results2/fig2.rs2.temp.png", width = 4, height = 3, units = "in")
+
+
 # statistics, temporal
 # x1 = mean(delt.gpp_2t, na.rm = TRUE);x1sd = sd(delt.gpp_2t, na.rm = TRUE)
 # x2 = mean(delt.er_2t, na.rm = TRUE);x2sd = sd(delt.er_2t, na.rm = TRUE)
@@ -474,6 +583,16 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
                        mean(delt.er)*2, mean(delt.er.temp), mean(rmse.er[,1]), mean(rmse.er[,4])),
 		   ersd = c(sd(r6, na.rm = TRUE), sd(r8, na.rm = TRUE), sd(r4, na.rm = TRUE), sd(r2, na.rm = TRUE),
                        sd(delt.er)*2, sd(delt.er.temp), sd(rmse.er[,1]), sd(rmse.er[,4])))
+
+    name     gppmean       gppsd      ermean       ersd
+1    T.p  32.0385016 27.82129139  27.9727325 19.4648611
+2    T.t   5.0868627 41.13074777   3.8584804 44.9024127
+3 T.rmse  42.9787067 26.08199968  46.4132240 25.4838853
+4   T.r2   0.4101992  0.20235724   0.3721168  0.1847644
+5    S.p 117.0322026 15.63272873 111.1773512 16.7172476
+6    S.t   1.6172245 15.12042318   1.3530873 15.3644826
+7 S.rmse 122.8341584 14.16635756 133.1796040 12.6926966
+8   S.r2   0.9264356  0.01584829   0.9158416  0.0149176
 
 save.image("F:/zhihua/dataset/results2/rs.obs3.RData")
 
