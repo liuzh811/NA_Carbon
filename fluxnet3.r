@@ -796,8 +796,7 @@ write.csv(delt.spatial, file = "F:/zhihua/dataset/results2/delt.spatial.ec.csv")
 ####### END of USE ggplot 2 to map 					
 
 ##plot sensitivity to temperature
-
-####### USE ggplot 2 to map 
+####### USE ggplot2 to map 
 prep.grd = prep = seq(100,1300, length.out = 25)
 airtemp.grd = seq(1,25, length.out = 25)
 
@@ -810,7 +809,7 @@ delt.er_2t = as.vector(delt.er_1t)
 
 delt.gpp_3t = data.frame(coef1=delt.gpp_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "GPP")		
 delt.er_3t = data.frame(coef1=delt.er_2t, prep = rep(airtemp.grd[-1], each = 101), flux = "ER")		
-d2t = rbind(delt.gpp_3t,delt.er_3t)
+d2t = rbind(delt.er_3t, delt.gpp_3t)
 
 d2t = d2t[complete.cases(d2t),]
 library(ggplot2)		
@@ -818,12 +817,12 @@ library(ggplot2)
 p2t = ggplot(d2t, aes(x=prep, y=coef1, color=flux)) + 
 	geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
-    # geom_smooth(method=lm,   # Add linear regression lines
-                # se=TRUE,    # Don't add shaded confidence region
-                # fullrange=FALSE) + 
+    geom_smooth(method=lm,   # Add linear regression lines
+                se=TRUE,    # Don't add shaded confidence region
+                fullrange=FALSE) + 
 	coord_cartesian(xlim=c(1, 25), ylim=c(-250, 250))	+ 	 
     ylab(expression(paste(beta ["Spatial"]))) + 
-	xlab("MAP (mm)") + # Set axis labels
+	xlab("Temperature (degree)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
@@ -870,12 +869,12 @@ library(ggplot2)
 p1.temp = ggplot(d1.temp, aes(x=prep, y=coef1, color=flux)) + 
 	geom_point(shape=1, cex = 1) +
     scale_colour_hue(l=50) + # Use a slightly darker palette than normal
-    geom_smooth(method="auto",   # Add linear regression lines
+    geom_smooth(method="lm",   # Add linear regression lines
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) +
     coord_cartesian(xlim=c(1, 25), ylim=c(-50, 150))	+ 	 
     ylab(expression(paste(beta ["temporal"]))) + 
-	xlab("MAP (mm)") + # Set axis labels
+	xlab("Temperature (degree)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
@@ -892,6 +891,18 @@ delt.temporal.temp = data.frame(prep = dat.df.annual.mean[,c("airtemp")], mean =
 
 
 plot(mean~prep, data = delt.temporal.temp)	
+
+d3t1 = rbind(data.frame(d1.temp, doman = "Temporal"),data.frame(d2t, doman = "Spatial"))			   
+
+write.csv(d3t1, file = "F:/zhihua/dataset/results2/EC.sensitivity2.temp.csv")
+write.csv(delt.temporal.temp, file = "F:/zhihua/dataset/results2/delt.temporal.ec.temp.csv")
+write.csv(delt.spatial.temp, file = "F:/zhihua/dataset/results2/delt.spatial.ec.temp.csv")
+
+print(p1.temp)
+ggsave("F:/zhihua/dataset/results2/fig2.ec1.temp.png", width = 4, height = 3, units = "in")
+print(p2t)
+ggsave("F:/zhihua/dataset/results2/fig2.ec2.temp.png", width = 4, height = 3, units = "in")
+
 
 # statistics, temporal
 # x1 = mean(delt.gpp_2t, na.rm = TRUE);x1sd = sd(delt.gpp_2t, na.rm = TRUE)
@@ -965,7 +976,7 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
 		   ersd = c(sd(r6, na.rm = TRUE), sd(r8, na.rm = TRUE), sd(r4, na.rm = TRUE), sd(r2, na.rm = TRUE),
                        sd(delt.er)*2, sd(delt.er.temp), sd(rmse.er[,1]), sd(rmse.er[,4])))
 
-save.image("F:/zhihua/dataset/results/fluxnet3.RData")
+save.image("F:/zhihua/dataset/results2/fluxnet3.RData")
 				
 
 	
