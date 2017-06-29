@@ -333,23 +333,17 @@ outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 
 dev.off()
 
-
-
-temp1.gpp1
-plot(prep1.gpp1 )
-library(rasterVis)
-levelplot(stack(temp1.gpp1, prep1.gpp1))
-
-r1 = temp1.gpp1/prep1.gpp1
-r1[r1 > 10] = NA
+## plot longitude/latitude gradient
 temp1.gpp2 = as.matrix(temp1.gpp1)
 prep1.gpp2 = as.matrix(prep1.gpp1)
+lat = yFromRow(nee1[[1]], 1:nrow(nee1[[1]]))
+long = xFromCol(nee1[[1]], 1:ncol(nee1[[1]]))
 
 #latitude
-temp1.gpp21 = data.frame(latmean = apply(temp1.gpp2, 1, mean, na.rm = TRUE),latsd = apply(temp1.gpp2, 1, sd, na.rm = TRUE))
-prep1.gpp21 = data.frame(latmean = apply(prep1.gpp2, 1, mean, na.rm = TRUE),latsd = apply(prep1.gpp2, 1, sd, na.rm = TRUE))
+temp1.gpp21 = data.frame(latmean = apply(temp1.gpp2, 1, mean, na.rm = TRUE),latsd = 0.5*apply(temp1.gpp2, 1, sd, na.rm = TRUE))
+prep1.gpp21 = data.frame(latmean = apply(prep1.gpp2, 1, mean, na.rm = TRUE),latsd = 0.5*apply(prep1.gpp2, 1, sd, na.rm = TRUE))
 
-lat = yFromRow(nee1[[1]], 1:nrow(nee1[[1]]))
+
 temp1.gpp21 = data.frame(long = lat, temp1.gpp21)
 prep1.gpp21 = data.frame(long = lat, prep1.gpp21)
 
@@ -357,7 +351,7 @@ plot(latmean~long,  type = "l", lwd = 2, data = temp1.gpp21,
                                   ylim = c(0,2), 
 								  col="red",
                                   xlab = "Latitude", 
-								  ylab = "Percent High Severity Fire", cex.axis = 1.5, cex.lab = 1.6)
+								  ylab = "Mean grid-cell IAV (normalized)", cex.axis = 1.5, cex.lab = 1.6)
 
 polygon(c(rev(temp1.gpp21$long), temp1.gpp21$long), 
 		c(rev(temp1.gpp21$latmean-temp1.gpp21$latsd), temp1.gpp21$latmean+temp1.gpp21$latsd), 
@@ -378,10 +372,9 @@ polygon(c(rev(prep1.gpp21$long), prep1.gpp21$long),
 
 
 # longitude
-long = xFromCol(nee1[[1]], 1:ncol(nee1[[1]]))
 
-temp1.gpp22 = data.frame(latmean = apply(temp1.gpp2, 2, mean, na.rm = TRUE),latsd = apply(temp1.gpp2, 2, sd, na.rm = TRUE))
-prep1.gpp22 = data.frame(latmean = apply(prep1.gpp2, 2, mean, na.rm = TRUE),latsd = apply(prep1.gpp2, 2, sd, na.rm = TRUE))
+temp1.gpp22 = data.frame(latmean = apply(temp1.gpp2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(temp1.gpp2, 2, sd, na.rm = TRUE))
+prep1.gpp22 = data.frame(latmean = apply(prep1.gpp2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(prep1.gpp2, 2, sd, na.rm = TRUE))
 
 temp1.gpp22[sapply(temp1.gpp22,is.na)] = NA 
 
@@ -395,9 +388,9 @@ plot(latmean~long,  type = "l", lwd = 2, data = temp1.gpp22,
 								  ylab = "Percent High Severity Fire", cex.axis = 1.5, cex.lab = 1.6)
 
 # polygon(c(rev(temp1.gpp22$long), temp1.gpp22$long), 
-		# c(rev(temp1.gpp22$latmean-temp1.gpp22$latsd), temp1.gpp22$latmean+temp1.gpp22$latsd), 
-        # col=rgb(1, 0, 0, 0.25),
-		# border = NA)
+#		 c(rev(temp1.gpp22$latmean-temp1.gpp22$latsd), temp1.gpp22$latmean+temp1.gpp22$latsd), 
+#         col=rgb(1, 0, 0, 0.25),
+#		 border = NA)
 								  
 par(new=TRUE)
 plot(latmean~long,  type = "l", lwd = 2, data = prep1.gpp22,
