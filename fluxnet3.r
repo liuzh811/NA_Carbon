@@ -979,7 +979,56 @@ data.frame(name = c("T.p", "T.t", "T.rmse", "T.r2","S.p", "S.t", "S.rmse", "S.r2
 save.image("F:/zhihua/dataset/results2/fluxnet3.RData")
 				
 
+# 6/29/2017
+# calculate contribute of T/P to gross carbon flux (GPP/ER)
+load("F:/zhihua/dataset/results2/fluxnet3.RData")
+er.temp = c()
+gpp.temp = c()
+
+er.prep = c()
+gpp.prep = c()
+
+gpp.int = c()
+er.int = c()
+
+for (i in 1:length(coef.er)){
+
+er.prep = c(er.prep, median(coef.er[[i]][,3]))
+gpp.prep = c(gpp.prep, median(coef.gpp[[i]][,3]))
+
+er.temp = c(er.temp, median(coef.er[[i]][,2]))
+gpp.temp = c(gpp.temp, median(coef.gpp[[i]][,2]))
+
+gpp.int = c(gpp.int, median(coef.gpp[[i]][,1]))
+er.int = c(er.int, median(coef.er[[i]][,1]))
 	
+}
+
+
+d5 = c()
+
+for(i in 1:length(dat.df.annual.mean$site_id)) {
+
+tmp = dat.df.ano.abs2[which(toupper(dat.df.ano.abs2$site_id) == toupper(dat.df.annual.mean$site_id[i])),]
+#lm1 = lm(nee~gpp, data = tmp,na.action=na.exclude)
+
+er1 = tmp$airtemp*er.temp[i] + tmp$prep*er.prep[i]
+gpp1 = tmp$airtemp*gpp.temp[i] + tmp$prep*gpp.prep[i]
+
+temp1.er1 = sd(tmp$airtemp*er.temp[i])/sd(er1)	
+prep1.er1 = sd(tmp$prep*er.prep[i])/sd(er1)	
+
+temp1.gpp1 = sd(tmp$airtemp*gpp.temp[i])/sd(gpp1)	
+prep1.gpp1 = sd(tmp$prep*gpp.prep[i])/sd(gpp1)	
+
+d5 = rbind(d5, c(temp1.er1, prep1.er1, temp1.gpp1, prep1.gpp1))	
+}
+
+colnames(d5) <- c("ER.T","ER.P","GPP.T","GPP.P")
+d5 = data.frame(dat.df.annual.mean[,c("site_id","airtemp", "prep")], d5)
+
+plot(ER.P~prep, data = d5)
+
 ##############################################################################################################
 ## old mapping 
 
