@@ -772,3 +772,114 @@ print(p1, vp=viewport(.73, .15, .45, .3)) #viewport, first two is the x,y coor; 
 
 dev.off()
 
+#### plot r~prep with SOC
+soc100 = raster("F:/zhihua/dataset/soc/RaCA_SOC/soc0_100idw.tif")
+
+soc100 = aggregate(soc100, fact = 10, fun = mean,expand=TRUE)
+
+extent(soc100) <- extent(R.grd)
+soc100 = soc100*R.grd
+soc100 = log10(soc100)
+
+dat1.corr2.df2 = data.frame(r = zonal(R, prep.mn2, mean)[,2],
+			   sd = 0.5*zonal(R, prep.mn2, sd)[,2],
+			    r.trendy = zonal(R.trendy1, prep.mn2, mean)[,2],
+			   sd.trendy = 0.5*zonal(R.trendy1, prep.mn2, sd)[,2],						   
+			   gpp = zonal(gpp.mn, prep.mn2, mean)[,2],
+			   gpp.sd = 0.5*zonal(gpp.mn, prep.mn2, sd)[,2],
+			   prep = zonal(prep.mn, prep.mn2, mean)[,2],
+			   prep.sd = 0.5*zonal(prep.mn, prep.mn2, sd)[,2],
+			   soc = zonal(soc100, prep.mn2, mean)[,2],
+			   soc.sd = 0.5*zonal(soc100, prep.mn2, sd)[,2])
+
+						   
+#######plot r response to prep
+png("F:/zhihua/dataset/results2/productivity.nee.cor.annual.usa2.mean.wsoc.png",height = 1500, width = 3000, res = 300, units = "px")
+
+par(mar=c(3,3,0,8)+2)
+
+par(mgp = c(3, 1, 0))
+
+plot(r~prep, data = dat1.corr2.df2, type = "l", 
+								  ylim = c(-0.2,1), 
+								  cex = 1.5, lwd = 4, 
+								  col = "blue",
+								  xlab = "Mean Anuual Precipitation (MAP: mm)", 
+								  ylab = "Pearson's r", cex.axis = 1.5, cex.lab = 1.3)
+			
+polygon(c(rev(dat1.corr2.df2$prep), dat1.corr2.df2$prep), 
+		c(rev(dat1.corr2.df2$r-dat1.corr2.df2$sd), dat1.corr2.df2$r+dat1.corr2.df2$sd), 
+        col=rgb(0, 0, 1,0.25),
+		border = NA)
+
+# overlay trendy r	
+par(new=TRUE)
+plot(dat1.corr2.df2$prep, dat1.corr2.df2$r.trendy, type="l", 
+								  ylim = c(-0.2,1), 
+								  col=rgb(178/255, 178/255, 0,1),lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+								  
+polygon(c(rev(dat1.corr2.df2$prep), dat1.corr2.df2$prep), 
+		c(rev(dat1.corr2.df2$r.trendy-dat1.corr2.df2$sd.trendy), dat1.corr2.df2$r.trendy+dat1.corr2.df2$sd.trendy), 
+        col=rgb(178/255, 178/255, 0,0.25),
+		border = NA)
+								  
+								  
+# overlay EC r	
+# points(cor.df$gpp,cor.df$r,ylim = c(-0.2,1), col="red",pch = 1, cex = 3)						  
+# text(cor.df$gpp,cor.df$r, cor.df$SITE_ID)	
+		
+# overlay GPP
+par(new=TRUE)
+plot(dat1.corr2.df2$prep, dat1.corr2.df2$gpp, type="l", 
+								  ylim = c(0, 1800), 
+								  col=rgb(128/255, 255/255, 204/255,1),
+								  lwd = 4, bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+polygon(c(rev(dat1.corr2.df2$prep), dat1.corr2.df2$prep), 
+		c(rev(dat1.corr2.df2$gpp-dat1.corr2.df2$gpp.sd), dat1.corr2.df2$gpp+dat1.corr2.df2$gpp.sd), 
+        col=rgb(128/255, 255/255, 204/255,0.25),
+		border = NA)
+
+# add GPP axis
+axis(side = 4,at=c(0, 500, 500, 1500),labels=c(0, 500, 500, 1500), cex.axis = 1.3, col =  rgb(128/255, 255/255, 204/255,1), col.axis = rgb(128/255, 255/255, 204/255,1))
+mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),cex = 1.3, col = rgb(128/255, 255/255, 204/255,1))
+
+
+legend("topleft", 
+	   # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+	   legend = c("Constrained Global Obs","TRENDY", "GPP", "SOC"),
+	   horiz=F,
+	   lwd = 4,
+	   col = c(rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1),rgb(128/255, 255/255, 204/255,1),rgb(255/255, 0/255, 0/255,1)),
+	   text.col = c(rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1),rgb(128/255, 255/255, 204/255,1),rgb(255/255, 0/255, 0/255,1)),
+	   cex = 1,
+	   box.col = "transparent",
+	   bg = "transparent")
+
+
+
+# overlay soc
+par(new=TRUE)
+plot(dat1.corr2.df2$prep, dat1.corr2.df2$soc, type="l", 
+								  ylim = c(1, 2.5), 
+								  col=rgb(255/255, 0/255, 0/255,1),
+								  lwd = 4, bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+
+polygon(c(rev(dat1.corr2.df2$prep), dat1.corr2.df2$prep), 
+		c(rev(dat1.corr2.df2$soc-dat1.corr2.df2$soc.sd), dat1.corr2.df2$soc+dat1.corr2.df2$soc.sd), 
+        col=rgb(255/255, 0/255, 0/255,0.25),
+		border = NA)
+										  
+
+# add SOC axis
+
+par(mgp = c(0, 5, 5))
+axis(side = 4,at=c(1, 1.5, 2, 2.5),labels=c(1, 1.5, 2, 2.5),padj = 0.5, cex.axis = 1.3, col =  rgb(1, 0,0,1), col.axis = rgb(1, 0,0,1))
+mtext(side = 4, line = 3, padj = 3, expression("SOC (in log10 scale, " ~ Mg ~ C ~ ha^{-1} ~ ""),cex = 1.3, col = rgb(1, 0,0,1))
+
+# text(x = 0, y = 1600, "c)", cex = 2)
+# box()	
+dev.off()
+
+
