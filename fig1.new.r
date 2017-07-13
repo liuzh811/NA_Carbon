@@ -484,7 +484,7 @@ plot(R, zlim=c(-1,1),col = my.colors(100),
 		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
         smallplot=c(0.8,0.85, 0.2,0.45))
 	 par(mar = par("mar"))
-text(x = -123, y = 51, "a)", cex = 2)
+# text(x = -123, y = 51, "a)", cex = 2)
 
 # plot mean r from trendy model
 
@@ -507,7 +507,7 @@ pts.sp.sig2 = Ex.pts(P2, sig.level = 0.1) #extract significant relation points
 
 plot(pts.sp.sig2, add = TRUE, cex = 0.1)
 
-text(x = -123, y = 51, "b)", cex = 2)
+# text(x = -123, y = 51, "b)", cex = 2)
 
 # box()
 #######plot r response to prep
@@ -518,7 +518,7 @@ plot(r~prep, data = dat1.corr2.df, type = "l",
 								  cex = 1.5, lwd = 4, 
 								  col = "blue",
 								  xlab = "Mean Anuual Precipitation (MAP: mm)", 
-								  ylab = "Pearson's r", cex.axis = 1.5, cex.lab = 1.3)
+								  ylab = "Pearson's r", cex.axis = 1.3, cex.lab = 1.3)
 			
 polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep), 
 		c(rev(dat1.corr2.df$r-dat1.corr2.df$sd), dat1.corr2.df$r+dat1.corr2.df$sd), 
@@ -569,8 +569,8 @@ legend("topleft",
 # text(x = 100, y = 100, "c)", cex = 2)
 # box()	
 								  
-axis(side = 4,cex = 1.2)
-mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),cex = 1.1, col = rgb(128/255, 255/255, 204/255,1))
+axis(side = 4,cex.axis = 1.3, col.axis = rgb(128/255, 255/255, 204/255,1))
+mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),cex = 1.3, col = rgb(128/255, 255/255, 204/255,1))
 
 
 ## plot 4
