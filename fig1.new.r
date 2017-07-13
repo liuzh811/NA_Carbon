@@ -876,7 +876,7 @@ polygon(c(rev(dat1.corr2.df2$prep), dat1.corr2.df2$prep),
 
 par(mgp = c(0, 5, 5))
 axis(side = 4,at=c(1, 1.5, 2, 2.5),labels=c(1, 1.5, 2, 2.5),padj = 0.5, cex.axis = 1.3, col =  rgb(1, 0,0,1), col.axis = rgb(1, 0,0,1))
-mtext(side = 4, line = 3, padj = 3, expression("SOC (in log10 scale, " ~ Mg ~ C ~ ha^{-1} ~ ""),cex = 1.3, col = rgb(1, 0,0,1))
+mtext(side = 4, line = 3, padj = 3, expression("SOC (in log10 scale, " ~ Mg ~ C ~ ha^{-1} ~ ")"),cex = 1.3, col = rgb(1, 0,0,1))
 
 # text(x = 0, y = 1600, "c)", cex = 2)
 # box()	
