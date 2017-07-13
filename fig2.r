@@ -142,12 +142,12 @@ border = NA)
 # overlay trendy	
 d.temporal.trendy = d.temporal.trendy[order(d.temporal.trendy$prep),]
 mylm = 	lm(mean~prep, data = d.temporal.trendy)
-abline(mylm,col=rgb(0, 0, 0,1), lwd = 3)
+abline(mylm,col=rgb(178/255, 178/255, 0,1), lwd = 3)
 
 prd<-predict(mylm,newdata=data.frame(prep = prep.grd),interval = c("confidence"), level = 0.50,type="response") 
 polygon(c(rev(prep.grd), prep.grd), 
 		c(rev(prd[,2]), prd[,3]), 
-        col=rgb(0.5, 0.5, 0.5,0.25),
+        col=rgb(178/255, 178/255, 0,0.25),
 		border = NA)
 		
 legend("bottomleft", 
@@ -157,8 +157,8 @@ legend("bottomleft",
        	   legend = c("Constrained EC obs", "Constrained Global Obs","TRENDY"),
 	   horiz=F,
 	   lwd = 4,
-	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
-	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1)),
+	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1)),
 	   cex = 1.5,
 	   box.col = "transparent",
        bg = "transparent")	
@@ -232,13 +232,13 @@ par(new=TRUE)
 plot(mean~prep, data = d.spatial.trendy, type="l", 
 								  ylim = c(-100,100),
                                   xlim = c(100, 1300),								  
-								  col=rgb(0,0,0,1),
+								  col=rgb(178/255, 178/255, 0,1),
 								  lwd = 4,
 								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
 
 		polygon(c(rev(d.spatial.trendy$prep), d.spatial.trendy$prep), 
 		c(rev(d.spatial.trendy$mean-d.spatial.trendy$sd), d.spatial.trendy$mean+d.spatial.trendy$sd), 
-        col=rgb(0, 0, 0,0.25),
+        col=rgb(178/255, 178/255, 0,0.25),
         border = NA)
 
 text(x = 100, y = 95, "b)",cex = 2)
