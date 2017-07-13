@@ -303,8 +303,7 @@ abline(h = 0, lty = 2, lwd = 2)
 
 points(x = d.temporal.ec$prep, y = d.temporal.ec$mean, pch = 0, cex = 2,col="green")
 points(x = d.temporal.rs$prep, y = d.temporal.rs$mean, pch = 1, cex = 2,col="blue")
-points(x = d.temporal.trendy$prep, y = d.temporal.trendy$mean, pch = 2, cex = 2,col="black")
-		
+points(x = d.temporal.trendy$prep, y = d.temporal.trendy$mean, pch = 2, cex = 2,col=rgb(178/255, 178/255, 0,1))
 
 text(x = 1.5, y = 95, "a)",cex = 2)
 
@@ -366,27 +365,24 @@ par(new=TRUE)
 plot(mean~prep, data = d.spatial.trendy, type="l", 
 								  ylim = c(-200,200),
                                   xlim = c(1, 25),								  
-								  col=rgb(0,0,0,1),
+								  col=rgb(178/255, 178/255, 0,1),
 								  lwd = 4,
 								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
 
 		polygon(c(rev(d.spatial.trendy$prep), d.spatial.trendy$prep), 
 		c(rev(d.spatial.trendy$mean-d.spatial.trendy$sd), d.spatial.trendy$mean+d.spatial.trendy$sd), 
-        col=rgb(0, 0, 0,0.25),
+        col = rgb(178/255, 178/255, 0,0.25),
         border = NA)
 
 text(x = 1.5, y = 195, "b)",cex = 2)
 
 legend("bottomleft", 
-       # inset=0.05, 
-	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
-#	   legend = c("EC", "RS","TRENDY"),
        	   legend = c("Constrained EC obs", "Constrained Global Obs","TRENDY"),
 	   horiz=F,
-	   pch = 0:2,
+	   # pch = 0:2,
 	   lwd = 4,
-	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
-	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(0,0,0,1)),
+	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1)),
+	   text.col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1)),
 	   cex = 1.5,
 	   box.col = "transparent",
        bg = "transparent")	
