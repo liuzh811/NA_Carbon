@@ -267,8 +267,8 @@ polygon(c(rev(dat1.df$prep), dat1.df$prep),
         col=rgb(1, 0, 0,0.25),
 		border = NA)
 
-text(x = 230, y = 1.9, "a)",cex = 2)
-					  
+text(x = 300, y = 1.9, "a):GPP",cex = 2)
+
 legend("topright", 
        # inset=0.05, 
 	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
@@ -311,8 +311,8 @@ polygon(c(rev(dat1.df$prep), dat1.df$prep),
         col=rgb(1, 0, 0,0.25),
 		border = NA)
 
-text(x = 230, y = 1.9, "b)",cex = 2)
-		
+text(x = 300, y = 1.9, "b):ER",cex = 2)
+
 mtext(side = 1, line = 3, "Anuual Mean Precipitation (mm)", 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
@@ -321,3 +321,103 @@ outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 
 dev.off()
 
+## plot longitude/latitude gradient
+temp1.gpp2 = as.matrix(temp1.gpp1)
+prep1.gpp2 = as.matrix(prep1.gpp1)
+lat = yFromRow(nee1[[1]], 1:nrow(nee1[[1]]))
+long = xFromCol(nee1[[1]], 1:ncol(nee1[[1]]))
+
+# longitude
+# prepared GPP data
+temp1.gpp22 = data.frame(latmean = apply(temp1.gpp2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(temp1.gpp2, 2, sd, na.rm = TRUE))
+prep1.gpp22 = data.frame(latmean = apply(prep1.gpp2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(prep1.gpp2, 2, sd, na.rm = TRUE))
+
+temp1.gpp22[sapply(temp1.gpp22,is.na)] = NA 
+
+temp1.gpp22 = data.frame(long = long, temp1.gpp22)
+prep1.gpp22 = data.frame(long = long, prep1.gpp22)
+
+temp1.gpp22 = temp1.gpp22[complete.cases(temp1.gpp22),]
+prep1.gpp22 = prep1.gpp22[complete.cases(prep1.gpp22),]
+
+# prepared ER data
+temp1.er2 = as.matrix(temp1.er1)
+prep1.er2 = as.matrix(prep1.er1)
+
+temp1.er22 = data.frame(latmean = apply(temp1.er2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(temp1.er2, 2, sd, na.rm = TRUE))
+prep1.er22 = data.frame(latmean = apply(prep1.er2, 2, mean, na.rm = TRUE),latsd = 0.5*apply(prep1.er2, 2, sd, na.rm = TRUE))
+
+temp1.er22[sapply(temp1.er22,is.na)] = NA 
+
+temp1.er22 = data.frame(long = long, temp1.er22)
+prep1.er22 = data.frame(long = long, prep1.er22)
+
+temp1.er22 = temp1.er22[complete.cases(temp1.er22),]
+prep1.er22 = prep1.gpp22[complete.cases(prep1.er22),]
+
+png("F:/zhihua/dataset/results2/contributionTP.trendy.long.png",height = 1500, width = 2000, res = 300, units = "px")						   
+
+par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))					   
+
+# gpp plot
+plot(latmean~long,  type = "l", lwd = 2, data = temp1.gpp22,
+                                  ylim = c(0,2), xlim = c(-125,-70),
+				  col="red",
+                                  xlab = "Longitude", 
+				  ylab = "Mean grid-cell IAV (normalized)", 
+                                  xaxt='n', ann=FALSE,
+                                  cex.axis = 1.5, cex.lab = 1.6)
+
+ polygon(c(rev(temp1.gpp22$long), temp1.gpp22$long), 
+		 c(rev(temp1.gpp22$latmean-temp1.gpp22$latsd), temp1.gpp22$latmean+temp1.gpp22$latsd), 
+         col=rgb(1, 0, 0, 0.25),
+		 border = NA)
+								  
+par(new=TRUE)
+plot(latmean~long,  type = "l", lwd = 2, data = prep1.gpp22,
+                                  ylim = c(0,2), xlim = c(-125,-70),
+								  col="blue",
+                                  xlab = "Longitude", 
+				  ylab = "Mean grid-cell IAV (normalized)", 
+                                  xaxt='n', ann=FALSE,
+                                  cex.axis = 1.5, cex.lab = 1.6)
+			
+ polygon(c(rev(prep1.gpp22$long), prep1.gpp22$long), 
+		 c(rev(prep1.gpp22$latmean-prep1.gpp22$latsd), prep1.gpp22$latmean+prep1.gpp22$latsd), 
+          col=rgb(0, 0, 1,0.25),
+		 border = NA)
+text(x = -120, y = 1.9, "a):GPP",cex = 2)
+
+# er plot
+plot(latmean~long,  type = "l", lwd = 2, data = temp1.er22,
+                                  ylim = c(0,2), xlim = c(-125,-70),
+								  col="red",
+                                  xlab = "Longitude", 
+								  ylab = "Mean grid-cell IAV (normalized)", cex.axis = 1.5, cex.lab = 1.6)
+
+ polygon(c(rev(temp1.er22$long), temp1.er22$long), 
+		 c(rev(temp1.er22$latmean-temp1.er22$latsd), temp1.er22$latmean+temp1.er22$latsd), 
+         col=rgb(1, 0, 0, 0.25),
+		 border = NA)
+								  
+par(new=TRUE)
+plot(latmean~long,  type = "l", lwd = 2, data = prep1.er22,
+                                  ylim = c(0,2), xlim = c(-125,-70),
+								  col="blue",
+                                  xlab = "Longitude", 
+								  ylab = "Mean grid-cell IAV (normalized)", cex.axis = 1.5, cex.lab = 1.6)
+			
+ polygon(c(rev(prep1.er22$long), prep1.er22$long), 
+		 c(rev(prep1.er22$latmean-prep1.er22$latsd), prep1.er22$latmean+prep1.er22$latsd), 
+          col=rgb(0, 0, 1,0.25),
+		 border = NA)
+
+text(x = -120, y = 1.9, "b):ER",cex = 2)
+
+mtext(side = 1, line = 3, "Longitude", 
+      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+				
+mtext(side = 2, line = 3, "Mean grid-cell IAV (normalized)", 
+outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+
+dev.off()
