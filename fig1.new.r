@@ -616,6 +616,11 @@ plot(gpp.mn,
 	 par(mar = par("mar"))
 text(x = -123, y = 50, "a)", cex = 2)
 
+# add unit
+# tx = expression("GPP \n " ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ ""))
+# text(x = -65, y = 38, tx, cex = 1.5)
+text(x = -69, y = 38, "GPP\n g C*m-2*yr-1", cex = 1.5)
+
 # plot nee
 
 ####### Fpar
@@ -643,6 +648,11 @@ plot(nee.mn,
 	 par(mar = par("mar"))
 text(x = -123, y = 50, "b)", cex = 2)
 
+# add unit
+# tx = expression("NEE: " ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ ""))
+# text(x = -65, y = 38, tx, cex = 1.5)
+
+text(x = -69, y = 38, "NEE\n g C*m-2*yr-1", cex = 1.5)
 
 # plot mean r from rs model
 my.colors = colorRampPalette(c("blue", "white", "red"))
