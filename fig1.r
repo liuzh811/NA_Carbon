@@ -44,7 +44,7 @@ P.stack = stack(P.stack1, P.stack2)
 Col.name = c("GPP:CT-NEE","NDVI:CT-NEE","FPAR:CT-NEE","SIF:CT-NEE","GPP:EC-NEE","NDVI:EC-NEE","FPAR:EC-NEE","SIF:EC-NEE")
 let.name = c("a)","b)","c)","d)","e)","f)","g)","h)")
 
-png("C:/zhihua/dataset/results/productivity.nee.cor.rs-2.png",height = 2500, width = 2500, res = 300, units = "px")
+png("F:/zhihua/dataset/results2/productivity.nee.cor.rs-2.png",height = 2500, width = 2500, res = 300, units = "px")
 
 par(mfrow=c(4,2),mar=c(0,0,0,0)+.1)
 my.colors = colorRampPalette(c("blue", "white", "red"))
