@@ -89,7 +89,10 @@ plot(1, type="n",
 								  # ylab = expression(paste(beta ["temporal"])), 
 								  cex.axis = 1.5, 
 								  cex.lab = 1.6,
-								  xaxt='n', ann=FALSE)
+								  xaxt='n', ann=FALSE,yaxt='n')
+
+# add axis and labels
+axis(side = 2, las = 1, tck = -.02, at = c(-50,0,50), labels = c("-50","0","50"), cex.axis = 1.5)
 
 abline(h = 0, lty = 2, lwd = 2)		
 								  
@@ -175,7 +178,6 @@ text(x = 100, y = 95, "a)",cex = 2)
 ## plot spatial sensitivity
 		
 # par(mar=c(0,5,0,0))
-
 plot(mean~prep, data = d.spatial.ec, type="l", 
 								  ylim = c(-100,100),
                                   xlim = c(100, 1300),								  
@@ -185,7 +187,11 @@ plot(mean~prep, data = d.spatial.ec, type="l",
 								  # ylab = "Spatial sensitivity", 
 								  # ylab = expression(paste(beta ["spatial"])),
 								  ylab = "",
-								  cex.axis = 1.5, cex.lab = 1.6)
+								  cex.axis = 1.5, cex.lab = 1.6,yaxt='n')
+
+# add axis and labels
+axis(side = 2, las = 1, tck = -.02, at = c(-50,0,50), labels = c("-50","0","50"),cex.axis = 1.5)
+
 
 polygon(c(rev(d.spatial.ec$prep), d.spatial.ec$prep), 
 		c(rev(d.spatial.ec$mean-d.spatial.ec$sd), d.spatial.ec$mean+d.spatial.ec$sd), 
@@ -255,10 +261,14 @@ text(x = 100, y = 95, "b)",cex = 2)
 # border = NA)
 
 	   
-mtext(side = 1, line = 3, "Mean Anuual Precipitation (MAP: mm)", 
+mtext(side = 1, line = 3, 
+ #     "Mean Anuual Precipitation (MAP: mm)", 
+      "mm",
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
-mtext(side = 2, line = 3, expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "/100mm"), 
+mtext(side = 2, line = 3, 
+   #   expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "per 100mm"), 
+      expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 			
 dev.off()		
@@ -297,7 +307,10 @@ plot(1, type="n",
 								  # ylab = expression(paste(beta ["temporal"])), 
 								  cex.axis = 1.5, 
 								  cex.lab = 1.6,
-								  xaxt='n', ann=FALSE)
+								  xaxt='n', ann=FALSE,yaxt='n')
+
+# add axis and labels
+axis(side = 2, las = 1, tck = -.02, at = c(-50,0,50), labels = c("-50","0","50"), cex.axis = 1.5)
 
 abline(h = 0, lty = 2, lwd = 2)		
 
@@ -307,10 +320,9 @@ points(x = d.temporal.trendy$prep, y = d.temporal.trendy$mean, pch = 2, cex = 2,
 
 text(x = 1.5, y = 95, "a)",cex = 2)
 
-## plot spatial sensitivity
-		
+## plot spatial sensitivity	
 plot(mean~prep, data = d.spatial.ec, type="l", 
-								  ylim = c(-200,200),
+								  ylim = c(-100,100),
                                   xlim = c(1, 25),								  
 								  cex = 2, lwd = 4, 
 								  col = "green",
@@ -318,7 +330,10 @@ plot(mean~prep, data = d.spatial.ec, type="l",
 								  # ylab = "Spatial sensitivity", 
 								  # ylab = expression(paste(beta ["spatial"])),
 								  ylab = "",
-								  cex.axis = 1.5, cex.lab = 1.6)
+								  cex.axis = 1.5, cex.lab = 1.6,yaxt='n')
+
+# add axis and labels
+axis(side = 2, las = 1, tck = -.02, at = c(-50,0,50), labels = c("-50","0","50"), cex.axis = 1.5)
 
 polygon(c(rev(d.spatial.ec$prep), d.spatial.ec$prep), 
 		c(rev(d.spatial.ec$mean-d.spatial.ec$sd), d.spatial.ec$mean+d.spatial.ec$sd), 
@@ -340,7 +355,7 @@ border = NA)
 # overlay remote sensing
 par(new=TRUE)
 plot(mean~prep, data = d.spatial.rs, type="l", 
-								  ylim = c(-200,200),
+								  ylim = c(-100,100),
                                   xlim = c(1, 25),								  
 								  col="blue",lwd = 4,
 								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
@@ -363,7 +378,7 @@ abline(v = 830, col = "blue", lwd = 4, lty = 2)
 # overlay trendy	
 par(new=TRUE)
 plot(mean~prep, data = d.spatial.trendy, type="l", 
-								  ylim = c(-200,200),
+								  ylim = c(-100,100),
                                   xlim = c(1, 25),								  
 								  col=rgb(178/255, 178/255, 0,1),
 								  lwd = 4,
@@ -395,7 +410,9 @@ legend("bottomleft",
 mtext(side = 1, line = 3, "Anuual Mean Temperature (degree)", 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
-mtext(side = 2, line = 3, expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " per degree"), 
+mtext(side = 2, line = 3, 
+      # expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " per degree"), 
+     expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 			
 dev.off()		
