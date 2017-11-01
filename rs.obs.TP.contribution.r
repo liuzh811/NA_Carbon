@@ -246,7 +246,7 @@ dat1.df = data.frame(gpp.mean.p = zonal(prep1.gpp1, prep.mn2, mean)[,2],
 
 png("F:/zhihua/dataset/results2/contributionTP.rs.png",height = 2500, width = 2500, res = 300, units = "px")						   
 						   
-par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))					   
+par(mfrow=c(2,1),mar=c(1,0,0,0),oma=c(5,5,0,0))					   
 						   
 # gpp plot
 plot(gpp.mean.p~prep, data = dat1.df, type = "l", 
@@ -323,7 +323,7 @@ polygon(c(rev(dat1.df$prep), dat1.df$prep),
         col=rgb(1, 0, 0,0.25),
 		border = NA)
 
-text(x = 300, y = 1.9, "b):ER",cex = 2)
+text(x = 300, y = 1.9, "b):TER",cex = 2)
 		
 mtext(side = 1, line = 3, "Anuual Mean Precipitation (mm)", 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
