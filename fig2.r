@@ -262,13 +262,13 @@ text(x = 100, y = 95, "b)",cex = 2)
 
 	   
 mtext(side = 1, line = 3, 
- #     "Mean Anuual Precipitation (MAP: mm)", 
-      "mm",
+      "Mean Anuual Precipitation (MAP: mm)", 
+     # "mm",
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
 mtext(side = 2, line = 3, 
-   #   expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "per 100mm"), 
-      expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
+      expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "per 100mm"), 
+  #    expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 			
 dev.off()		
