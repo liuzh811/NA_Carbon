@@ -477,6 +477,9 @@ polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep),
         col=rgb(0, 0, 1,0.25),
 		border = NA)
 
+# add r = 0 line
+abline(h = 0, lty = 2, lwd = 0.5)
+
 # overlay trendy r	
 par(new=TRUE)
 plot(dat1.corr2.df$prep, dat1.corr2.df$r.trendy, type="l", 
@@ -504,7 +507,7 @@ polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep),
 		c(rev(dat1.corr2.df$gpp-dat1.corr2.df$gpp.sd), dat1.corr2.df$gpp+dat1.corr2.df$gpp.sd), 
         col=rgb(128/255, 255/255, 204/255,0.25),
 		border = NA)
-										  
+
 
 legend("topleft", 
 	   # inset=0.05, 
