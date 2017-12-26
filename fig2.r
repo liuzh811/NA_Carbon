@@ -71,7 +71,7 @@ d.spatial.trendy = data.frame(read.csv("F:/zhihua/dataset/results2/delt.spatial.
 
 prep.grd = seq(100,1300, length.out = 25)
 
-png("F:/zhihua/dataset/results2/fig2-3.png",height = 2500, width = 2000, res = 300, units = "px")
+png("F:/zhihua/dataset/results2/fig2-4.png",height = 2500, width = 2000, res = 300, units = "px")
 
 par(mfrow=c(2,1),mar=c(0,0,0,0),oma=c(5,5,0,0))
 
@@ -266,11 +266,20 @@ mtext(side = 1, line = 3,
      # "mm",
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
+# mtext(side = 2, line = 3, 
+#      expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "per 100mm"), 
+#      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+
+# add spatial sensitivity difference
 mtext(side = 2, line = 3, 
-      expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ "per 100mm"), 
-  #    expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
-      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
-			
+      expression("" ~ Delta * delta ^{s} ~ ""), 
+      outer = TRUE, cex = 1.6, adj = 0.23, col = rgb(0, 0, 0,1))
+
+# add temproal sensitivity difference
+mtext(side = 2, line = 3, 
+      expression("" ~ Delta * delta ^{t} ~ ""), 
+      outer = TRUE, cex = 1.6, adj = 0.78, col = rgb(0, 0, 0,1))
+
 dev.off()		
 		
 		
@@ -410,11 +419,22 @@ legend("bottomleft",
 mtext(side = 1, line = 3, "Anuual Mean Temperature (degree)", 
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
-mtext(side = 2, line = 3, 
+# mtext(side = 2, line = 3, 
       # expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ " per degree"), 
-     expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
-      outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
-			
+ #    expression("" ~ g ~ C ~ m^{-2} ~ yr ^{-1}~ ""), 
+ #     outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
+
+# add spatial sensitivity difference
+mtext(side = 2, line = 3, 
+      expression("" ~ Delta * gamma ^{s} ~ ""), 
+      outer = TRUE, cex = 1.6, adj = 0.23, col = rgb(0, 0, 0,1))
+
+# add temproal sensitivity difference
+mtext(side = 2, line = 3, 
+      expression("" ~ Delta * gamma ^{t} ~ ""), 
+      outer = TRUE, cex = 1.6, adj = 0.78, col = rgb(0, 0, 0,1))
+
+
 dev.off()		
 		
 
