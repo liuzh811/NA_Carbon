@@ -284,7 +284,7 @@ delt.temporal = rbind(delt.temporal, c(x2 - x1))
 }
 	
 
-pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(prep.df.mn[-4], each = 101), flux = "ER")					
+pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(prep.df.mn[-4], each = 101), flux = "TER")					
 pred.gpp.t2 = data.frame(coef1=pred.gpp.t, prep = rep(prep.df.mn[-4], each = 101), flux = "GPP")					
 
 d1 = rbind(pred.er.t2, pred.gpp.t2)	
@@ -300,15 +300,16 @@ p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) +
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) +
     coord_cartesian(xlim=c(100, 1500), ylim=c(-50, 150))	+ 	 
-    ylab(expression(paste(beta ["temporal"]))) + 
+  #  ylab(expression(paste(beta ["temporal"]))) + 
+ ylab(expression("" ~ delta ^{t} ~ "")) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
 	theme(legend.title=element_blank()) +
 	theme(legend.text = element_text(size = 12)) +
-	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
-    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+	theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
   
@@ -348,7 +349,7 @@ prep.grd = prep = seq(100,1300, length.out = 25)
 airtemp.grd = seq(1,25, length.out = 25)
 
 delt.gpp_3 = data.frame(coef1=delt.gpp_2, prep = rep(prep.grd[-1], each = 101), flux = "GPP")		
-delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "ER")		
+delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "TER")		
 d2 = rbind(delt.er_3,delt.gpp_3)
 
 d2 = d2[complete.cases(d2),]
@@ -362,15 +363,16 @@ p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) +
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) + 
 	coord_cartesian(xlim=c(100, 1500), ylim=c(0, 250))	+ 	 
-    ylab(expression(paste(beta ["Spatial"]))) + 
+#  ylab(expression(paste(beta ["Spatial"]))) + 
+ ylab(expression("" ~ delta ^{s} ~ "")) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
 	theme(legend.title=element_blank()) +
 	theme(legend.text = element_text(size = 12)) +
-	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
-    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+	theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
 
@@ -383,9 +385,9 @@ plot(mean~prep, data = delt.spatial, cex = 3)
 
 
 print(p1)
-ggsave("F:/zhihua/dataset/results2/fig2.rs1.png", width = 4, height = 3, units = "in")
+ggsave("F:/zhihua/dataset/results2/fig2.rs1-2.png", width = 4, height = 3, units = "in")
 print(p2)
-ggsave("F:/zhihua/dataset/results2/fig2.rs2.png", width = 4, height = 3, units = "in")
+ggsave("F:/zhihua/dataset/results2/fig2.rs2-2.png", width = 4, height = 3, units = "in")
 
 
 d3 = rbind(data.frame(d1, doman = "Temporal"),data.frame(d2, doman = "Spatial"))			   
