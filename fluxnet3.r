@@ -650,7 +650,7 @@ delt.er_1 = apply(delt.er, 1, Rplc)
 delt.er_2 = as.vector(delt.er_1)
 
 delt.gpp_3 = data.frame(coef1=delt.gpp_2, prep = rep(prep.grd[-1], each = 101), flux = "GPP")		
-delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "ER")		
+delt.er_3 = data.frame(coef1=delt.er_2, prep = rep(prep.grd[-1], each = 101), flux = "TER")		
 d2 = rbind(delt.er_3,delt.gpp_3)
 
 d2 = d2[complete.cases(d2),]
@@ -664,15 +664,16 @@ p2 = ggplot(d2, aes(x=prep, y=coef1, color=flux)) +
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) + 
 	coord_cartesian(xlim=c(100, 1500), ylim=c(0, 250))	+ 	 
-    ylab(expression(paste(beta ["Spatial"]))) + 
+    ylab(expression("" ~ delta ^{s} ~ "")) + 
+ #   ylab(expression(paste(beta ["Spatial"]))) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
 	theme(legend.title=element_blank()) +
 	theme(legend.text = element_text(size = 12)) +
-	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
-    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+	theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
 
@@ -719,7 +720,7 @@ pred.gpp.t = c(pred.gpp.t, x2)
 delt.temporal = rbind(delt.temporal, c(x2 - x1))	
 }
 					
-pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(dat.df.annual.mean[,c("prep")], each = 101), flux = "ER")					
+pred.er.t2 = data.frame(coef1=pred.er.t, prep = rep(dat.df.annual.mean[,c("prep")], each = 101), flux = "TER")					
 pred.gpp.t2 = data.frame(coef1=pred.gpp.t, prep = rep(dat.df.annual.mean[,c("prep")], each = 101), flux = "GPP")					
 
 d1 = rbind(pred.er.t2, pred.gpp.t2)	
@@ -735,23 +736,24 @@ p1 = ggplot(d1, aes(x=prep, y=coef1, color=flux)) +
                 se=TRUE,    # Don't add shaded confidence region
                 fullrange=FALSE) +
     coord_cartesian(xlim=c(100, 1500), ylim=c(-50, 150))	+ 	 
-    ylab(expression(paste(beta ["temporal"]))) + 
+ #   ylab(expression(paste(beta ["temporal"]))) + 
+    ylab(expression("" ~ delta ^{t} ~ "")) + 
 	xlab("MAP (mm)") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
 	theme(legend.position=c(.5, .8)) + 	
 	theme(legend.title=element_blank()) +
 	theme(legend.text = element_text(size = 12)) +
-	theme(axis.title.x = element_text(face="bold", colour="black", size=12),axis.text.x  = element_text(colour="black",size=10))+
-    theme(axis.title.y = element_text(face="bold", colour="black", size=12),axis.text.y  = element_text(colour="black",size=12))+
+	theme(axis.title.x = element_text(face="bold", colour="black", size=18),axis.text.x  = element_text(colour="black",size=18))+
+    theme(axis.title.y = element_text(face="bold", colour="black", size=18),axis.text.y  = element_text(colour="black",size=18))+
     theme(strip.text.x = element_text(size=12))+
     theme(strip.text.y = element_text(size=12)) 
 
 # multiplot(p1, p2, cols=1)					
 print(p1)
-ggsave("F:/zhihua/dataset/results2/fig2.ec1.png", width = 4, height = 3, units = "in")
+ggsave("F:/zhihua/dataset/results2/fig2.ec1-2.png", width = 4, height = 3, units = "in")
 print(p2)
-ggsave("F:/zhihua/dataset/results2/fig2.ec2.png", width = 4, height = 3, units = "in")
+ggsave("F:/zhihua/dataset/results2/fig2.ec2-2.png", width = 4, height = 3, units = "in")
 					
 # plot spatial sensitivity difference
 delt.temporal = data.frame(prep = dat.df.annual.mean[,c("prep")], mean = 100*apply(delt.temporal, 1, mean, na.rm = TRUE), 
@@ -1236,9 +1238,9 @@ png("F:/zhihua/dataset/results2/ec.sensitivity_ci.png",height = 2500, width = 30
 par(mar=c(5,6,1,1))
 #plot the relationship
 plot(0, xlim = c(0, 1500), ylim = c(0,2000),bty='n',pch='',
-        xlab='Precipation (mm)',
-		ylab=expression("GPP/TER" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),
-		cex.axis = 2, cex.lab = 2)
+        xlab='MAP (mm)',
+		ylab=expression("GPP or TER" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),
+		cex.axis = 1.5, cex.lab = 1.5)
 
 text(x = 1450, y = 1900, "a)",   cex = 3)
 		
@@ -1251,10 +1253,10 @@ lines(prep.grd,pred.gpp2[3,], lty = 'dashed', col = 'green')
 lines(prep.grd,pred.gpp2[1,], lty = 'dashed', col = 'green')
 lines(prep.grd, pred.gpp2[2,], lty = 1, lwd = 3, col = "green")
 
-# arrows(dat.df.annual.mean$prep,dat.df.annual.mean$gpp-dat.df.annual.sd$gpp,
-        # dat.df.annual.mean$prep,dat.df.annual.mean$gpp+dat.df.annual.sd$gpp, code=3, length=0.05, angle = 90, lwd = 0.5, col = "green")
+ # arrows(dat.df.annual.mean$prep,dat.df.annual.mean$gpp-dat.df.annual.sd$gpp,
+ #        dat.df.annual.mean$prep,dat.df.annual.mean$gpp+dat.df.annual.sd$gpp, code=3, length=0.05, angle = 90, lwd = 0.5, col = "green")
 # arrows(dat.df.annual.mean$prep-dat.df.annual.sd$prep,dat.df.annual.mean$gpp,
-        # dat.df.annual.mean$prep+dat.df.annual.sd$prep,dat.df.annual.mean$gpp, code=3, length=0.05, angle = 90, lwd = 0.5, col = "green")
+#         dat.df.annual.mean$prep+dat.df.annual.sd$prep,dat.df.annual.mean$gpp, code=3, length=0.05, angle = 90, lwd = 0.5, col = "green")
 
 ### plot er
 lines(prep.grd, pred.er2[2,], lty = 1, lwd = 3, col = "red")
@@ -1266,9 +1268,9 @@ lines(prep.grd,pred.er2[1,], lty = 'dashed', col = 'red')
 lines(prep.grd, pred.er2[2,], lty = 1, lwd = 3, col = "red")
 
 # arrows(dat.df.annual.mean$prep,dat.df.annual.mean$er-dat.df.annual.sd$er,
-        # dat.df.annual.mean$prep,dat.df.annual.mean$er+dat.df.annual.sd$er, code=3, length=0.05, angle = 90, lwd = 0.5, col = "red")
+#         dat.df.annual.mean$prep,dat.df.annual.mean$er+dat.df.annual.sd$er, code=3, length=0.05, angle = 90, lwd = 0.5, col = "red")
 # arrows(dat.df.annual.mean$prep-dat.df.annual.sd$prep,dat.df.annual.mean$er,
-        # dat.df.annual.mean$prep+dat.df.annual.sd$prep,dat.df.annual.mean$er, code=3, length=0.05, angle = 90, lwd = 0.5, col = "red")
+#         dat.df.annual.mean$prep+dat.df.annual.sd$prep,dat.df.annual.mean$er, code=3, length=0.05, angle = 90, lwd = 0.5, col = "red")
 
 
 #plot spatial sensitity of gpp vs er in response to precipitation
@@ -1278,8 +1280,8 @@ plotInset(1000, 50, 1500, 1000,
 		  
 # change to per 100 mm
 plot(0, xlim = c(0, 1500), ylim = c(0,150)*2, pch='', 
-     xlab = "Precipation (mm)", 
-	 ylab = expression(paste(italic(beta) ["spatial"])),
+     xlab = "MAP (mm)", 
+	 ylab = expression("" ~ delta ^{s} ~ ""),
 	 cex.lab = 1.5, cex.axis = 1.5)
 
 text(x = 20, y = 290, "1)",   cex = 1.5) 
@@ -1328,7 +1330,9 @@ plotInset(50, 1250, 500, 2000,
 mar=c(5,5,5,5)+.1
 		  
 plot(0, xlim = c(-2, 2)*50*2, ylim = c(0,5),bty='n',pch='',ylab='',
-   xlab = expression(paste(beta ["temporal"])),
+  #  xlab = expression(paste(beta ["temporal"])),
+     	 xlab = expression("" ~ delta ^{t} ~ ""),
+
    yaxt='n', 
    # ann=FALSE
    cex.lab = 1.5, cex.axis = 1.5)
@@ -1468,7 +1472,8 @@ p1 <- ggplot(data=D2, aes(x=type, y=mean)) +
              position=position_dodge(),
              size=.3) + 	
 	# ylab(ylab) + 	 
-    ylab(expression(paste(beta ["temporal"]))) + 
+ #   ylab(expression(paste(beta ["temporal"]))) + 
+ylab(expression("" ~ delta ^{t} ~ "")) + 
 	xlab("") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
@@ -1579,7 +1584,8 @@ p1 <- ggplot(data=D2, aes(x=type, y=mean)) +
              position=position_dodge(),
              size=.3) + 	
 	# ylab(ylab) + 	 
-    ylab(expression(paste(beta ["temporal"]))) + 
+ #   ylab(expression(paste(beta ["temporal"]))) + 
+ylab(expression("" ~ delta ^{t} ~ "")) + 
 	xlab("") + # Set axis labels
     # ggtitle("Average bill for 2 people") +     # Set title
     theme_bw() + 
