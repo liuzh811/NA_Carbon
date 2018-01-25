@@ -1,3 +1,5 @@
+library(ggplot2)
+
 #plot together
 d1.ec = data.frame(read.csv("F:/zhihua/dataset/results2/EC.sensitivity.csv"))[,-1]
 d1.rs = data.frame(read.csv("F:/zhihua/dataset/results2/RS.sensitivity.csv"))[,-1]
@@ -157,7 +159,7 @@ legend("bottomleft",
        # inset=0.05, 
 	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
 #	   legend = c("EC", "RS","TRENDY"),
-       	   legend = c("Constrained EC obs", "Constrained Global Obs","TRENDY"),
+       	   legend = c("EC Observation", "Global Observation","TRENDY Simulation"),
 	   horiz=F,
 	   lwd = 4,
 	   col = c(rgb(0, 1, 0,1), rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1)),
@@ -183,7 +185,7 @@ plot(mean~prep, data = d.spatial.ec, type="l",
                                   xlim = c(100, 1300),								  
 								  cex = 2, lwd = 4, 
 								  col = "green",
-								  xlab = "Anuual Mean Precipitation (MAP: mm)", 
+								  xlab = "Anuual Mean Precipitation (MAP: mm yr-1)", 
 								  # ylab = "Spatial sensitivity", 
 								  # ylab = expression(paste(beta ["spatial"])),
 								  ylab = "",
@@ -260,9 +262,9 @@ text(x = 100, y = 95, "b)",cex = 2)
       # col = rgb(0.5,0.5,0.5,0.3), 
 # border = NA)
 
-	   
 mtext(side = 1, line = 3, 
-      "Mean Anuual Precipitation (MAP: mm)", 
+      expression("Mean Annual Precipitation" ~ (MAP:mm ~ yr ^{-1}~ "")),
+     # "Mean Annual Precipitation (MAP: mm)", 
      # "mm",
       outer = TRUE, cex = 1.6, col = rgb(0, 0, 0,1))
 				
