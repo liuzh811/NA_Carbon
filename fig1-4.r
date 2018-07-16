@@ -529,3 +529,207 @@ mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),ce
 
 
 dev.off()
+
+#7/16/2018 using a new color scheme for GPP and NEE patterns
+
+
+png("F:/zhihua/dataset/results2/fig1-6.png",height = 2700, width = 3300, res = 300, units = "px")
+
+#new color for GPP and NEE
+par(mfrow=c(3,2),mar=c(0,0,0,0)+.0)
+
+# plot GPP
+my.colors11 = colorRampPalette(c("red", "yellow", "blue"))
+my.colors11 = colorRampPalette(c("white", "black"))
+
+####### Fpar
+plot(gpp.mn, 
+                    # zlim=c(-1,1),
+					col = my.colors11(100), 
+					# col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, lwd = 1, add = TRUE)
+# tx = expression("Mean Annual FPAR by MODIS, 2007 - 2014")
+tx = "a)"
+# text(x = 0, y = -85, "Mean Annual GPP by MODIS (g C/m-2*yr, 2000-2014)", cex = 2)
+
+#add legend
+plot(gpp.mn, 
+         # col = rainbow(n = 100), 
+		 col = my.colors11(100), 
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+        smallplot=c(0.8,0.85, 0.2,0.45))
+	 par(mar = par("mar"))
+text(x = -123, y = 50, "a)", cex = 2)
+
+# add unit
+tx = expression("" ~ gC ~ m^{-2} ~ yr ^{-1}~ "")
+text(x = -70, y = 38, tx, cex = 1.5)
+# text(x = -69, y = 38, "GPP\n gC m-2*yr-1", cex = 1.5)
+
+# plot nee
+
+####### Fpar
+plot(nee.mn, 
+                    # zlim=c(-1,1),
+					col = my.colors11(100), 
+					# col = rainbow(n = 100), 
+					main = "",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE)
+plot(usa.state, lwd = 1, add = TRUE)
+# tx = expression("Mean Annual FPAR by MODIS, 2007 - 2014")
+tx = "a)"
+# text(x = 0, y = -85, "Mean Annual GPP by MODIS (g C/m-2*yr, 2000-2014)", cex = 2)
+
+#add legend
+plot(nee.mn, 
+					col = my.colors11(100), 
+					# col = rainbow(n = 100), 
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+        smallplot=c(0.8,0.85, 0.2,0.45))
+	 par(mar = par("mar"))
+text(x = -123, y = 50, "b)", cex = 2)
+
+# add unit
+tx = expression("" ~ gC ~ m^{-2} ~ yr ^{-1}~ "")
+text(x = -70, y = 38, tx, cex = 1.5)
+# text(x = -69, y = 38, "NEE\n gC m-2*yr-1", cex = 1.5)
+
+# plot mean r from rs model
+my.colors = colorRampPalette(c("blue", "white", "red"))
+
+plot(R, zlim=c(-1,1),col = my.colors(100), 
+					# main = "Obeserved Mean r Between GPP and NEE",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE,
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1, add = TRUE)
+
+P = calc(stack(P.stack1, P.stack2), function(x){length(which(x <= 0.1))})	
+P1 = P
+P1[P <= 4] = 1
+P1[P > 4] = 0.05
+pts.sp.sig2 = Ex.pts(P1, sig.level = 0.1) #extract significant relation points
+
+plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+
+# plot.new()
+plot(R, zlim=c(-1,1),col = my.colors(100),
+         legend.only=TRUE,
+		 legend.width=1, legend.shrink=0.75,
+		 axis.args=list(cex.axis=1.5),
+		 legend.args=list(text="", side=4, font=2, line=2.5, cex=1.2),
+        smallplot=c(0.8,0.85, 0.2,0.45))
+	 par(mar = par("mar"))
+text(x = -123, y = 50, "c)", cex = 2)
+
+# text(x = -70, y = 38, "r", cex = 1.6)
+
+# plot mean r from trendy model
+
+plot(R.trendy1, zlim=c(-1,1),col = my.colors(100), 
+					# main = "Obeserved Mean r Between GPP and NEE",
+					legend=FALSE,
+                    axes=FALSE,
+                    box=FALSE,
+					# 
+					xlab = "Longtitude", ylab = "Latitude", cex.lab = 1.5,cex = 1.5
+					)
+
+plot(usa.state, lwd = 1, add = TRUE)
+
+P.trendy1 = calc(P.trendy, function(x){length(which(x <= 0.1))})	
+P2 = P.trendy1
+P2[P.trendy1 <= 5] = 1
+P2[P.trendy1 > 5] = 0.05
+pts.sp.sig2 = Ex.pts(P2, sig.level = 0.1) #extract significant relation points
+
+plot(pts.sp.sig2, add = TRUE, cex = 0.1)
+
+text(x = -123, y = 50, "d)", cex = 2)
+
+# box()
+#######plot r response to prep
+par(mar=c(3,3,0,3)+2)
+
+plot(r~prep, data = dat1.corr2.df, type = "l", 
+								  ylim = c(-0.2,1), 
+								  cex = 1.5, lwd = 4, 
+								  col = "blue",
+								  xlab = "Mean Anuual Precipitation (MAP: mm)", 
+								  ylab = "Pearson's r", cex.axis = 1.5, cex.lab = 1.3)
+			
+polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep), 
+		c(rev(dat1.corr2.df$r-dat1.corr2.df$sd), dat1.corr2.df$r+dat1.corr2.df$sd), 
+        col=rgb(0, 0, 1,0.25),
+		border = NA)
+
+# add r = 0 line
+abline(h = 0, lty = 2, lwd = 0.5)
+
+# overlay trendy r	
+par(new=TRUE)
+plot(dat1.corr2.df$prep, dat1.corr2.df$r.trendy, type="l", 
+								  ylim = c(-0.2,1), 
+								  col=rgb(178/255, 178/255, 0,1),lwd = 4,
+								  bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+								  
+polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep), 
+		c(rev(dat1.corr2.df$r.trendy-dat1.corr2.df$sd.trendy), dat1.corr2.df$r.trendy+dat1.corr2.df$sd.trendy), 
+        col=rgb(178/255, 178/255, 0,0.25),
+		border = NA)
+								  
+								  
+# overlay EC r	
+# points(cor.df$gpp,cor.df$r,ylim = c(-0.2,1), col="red",pch = 1, cex = 3)						  
+# text(cor.df$gpp,cor.df$r, cor.df$SITE_ID)	
+		
+# overlay GPP
+par(new=TRUE)
+plot(dat1.corr2.df$prep, dat1.corr2.df$gpp, type="l", 
+								  ylim = c(0, 1800), 
+								  col=rgb(128/255, 255/255, 204/255,1),
+								  lwd = 4, bty='n',pch='',ylab='',xlab='',yaxt='n',xaxt='n', ann=FALSE)
+polygon(c(rev(dat1.corr2.df$prep), dat1.corr2.df$prep), 
+		c(rev(dat1.corr2.df$gpp-dat1.corr2.df$gpp.sd), dat1.corr2.df$gpp+dat1.corr2.df$gpp.sd), 
+        col=rgb(128/255, 255/255, 204/255,0.25),
+		border = NA)
+
+
+legend("topleft", 
+	   # inset=0.05, 
+	   # legend = c("ENF","DBF","MF","SHB","GRA","CRO"),
+	   legend = c("Constrained Global Obs","TRENDY", "GPP"),
+	   horiz=F,
+	   lwd = 4,
+	   col = c(rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1),rgb(128/255, 255/255, 204/255,1)),
+	   text.col = c(rgb(0, 0, 1,1), rgb(178/255, 178/255, 0,1),rgb(128/255, 255/255, 204/255,1)),
+	   cex = 1,
+	   box.col = "transparent",
+	   bg = "transparent")
+
+# text(x = 0, y = 1600, "c)", cex = 2)
+# box()	
+								  
+axis(side = 4,cex.axis = 1.3, col.axis = rgb(128/255, 255/255, 204/255,1))
+mtext(side = 4, line = 3, expression("GPP" ~ (g ~ C ~ m^{-2} ~ yr ^{-1}~ "")),cex = 1.3, col = rgb(128/255, 255/255, 204/255,1))
+
+dev.off()
+
+
+
